@@ -105,6 +105,44 @@ directly onto DemandIQ's corridor model.
 
 ---
 
+## Detection recall vs vehicle size (measured 2026-09-27)
+
+Three SR-90 cameras, 90 sampled frames each. Production model (yolo11n @1280)
+scored against a stronger reference (yolo11s @1536). **Relative recall, not
+absolute** - the reference misses things too.
+
+| Vehicle width | Beach | Harbor | Brea |
+|---|---:|---:|---:|
+| 0-40 px | 52% | 36% | 80% |
+| 40-60 px | 95% | 71% | 84% |
+| **60-80 px** | **92%** | **98%** | **99%** |
+| **80-120 px** | **97%** | **91%** | **100%** |
+| **120-200 px** | **98%** | **100%** | **97%** |
+| **>=60 px overall** | **96.1%** | **94.8%** | **99.1%** |
+
+**Above 60 px all three cameras agree at 95-99%.** Below it they scatter (36-80%).
+The 60 px threshold is a measured boundary, not a rule of thumb.
+
+**Overall recall figures are misleading.** Harbor reads 49.9% and Brea 95.9%, but
+inspection of the misses shows they are **parked cars in adjacent lots and
+sub-40px background at the vanishing point** - not traffic. Harbor is low simply
+because 69.5% of reference detections are sub-40px background, vs 11.4% at Brea.
+Restrict to the roadway and detection is effectively solved.
+
+**A single pooled curve predicts each camera's overall recall from its pixel-size
+distribution alone** (free to measure, no labels) to within 6-8 pp, with correct
+ordering. This is the site-qualification screen: measure the size distribution,
+read off expected recall.
+
+### Consequence
+
+**Detection is not the bottleneck; classification is.** A training programme of
+~30k labelled instances would fix the half that already works. Geometric length
+classification fixes the broken half with no labels, no GPU, and an auditable
+number. Reconsider training only if a human ground-truth count contradicts this.
+
+---
+
 ## Classification scheme
 
 Body-type based, because **FHWA Scheme F is not recoverable** from an overhead

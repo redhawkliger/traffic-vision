@@ -1,0 +1,26 @@
+# Virtualenvs (the CV stack is ~1.2 GB — never commit)
+.venv*/
+__pycache__/
+*.pyc
+
+# Model weights (downloaded on demand from Ultralytics releases)
+*.pt
+*.onnx
+
+# Recorded video and derived frames.
+# Two reasons: size, and Caltrans CCTV redistribution terms are UNRESOLVED.
+# Scripts here FETCH public video; we do not re-publish it.
+*.ts
+*.mp4
+*.jpg
+*.jpeg
+*.png
+!docs/*.png
+
+# Analysis outputs
+crops_*/
+bench/
+*.csv
+tracks*.json
+events*.json
+.DS_Store

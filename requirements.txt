@@ -1,0 +1,14 @@
+# CV stack. NOT installed anywhere near the DemandIQ production image.
+#
+# Intel macOS ceiling: torch stopped shipping x86_64 wheels after 2.2.2.
+# ultralytics pins only torch>=1.8.0, so current versions work with it.
+# torch 2.2.2 predates numpy 2, hence the pin.
+#
+#   python3.12 -m venv .venv-cv
+#   ./.venv-cv/bin/pip install -r requirements.txt
+
+numpy<2
+torch==2.2.2
+torchvision==0.17.2
+opencv-python
+ultralytics

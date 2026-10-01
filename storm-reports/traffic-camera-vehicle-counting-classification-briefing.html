@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vehicle Counting &amp; Classification from Traffic Camera Video — Storm Research Briefing</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1352cc; --blue-soft:#eaf0fd; --ink:#15181d; --mid:#4a5260;
+  --line:#e2e6ed; --bg:#fff; --warm:#fff8e6; --warn:#b26a00;
+  --red:#b3261e; --red-soft:#fdecea; --green:#1b6b3a; --green-soft:#e8f5ed;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:Montserrat,system-ui,-apple-system,sans-serif;line-height:1.6;font-size:16px}
+.wrap{max-width:860px;margin:0 auto;padding:48px 24px 96px}
+h1{font-size:30px;line-height:1.25;font-weight:700;margin:0 0 10px}
+h2{font-size:21px;font-weight:700;margin:52px 0 16px;padding-bottom:9px;border-bottom:2px solid var(--line)}
+h3{font-size:16px;font-weight:700;margin:26px 0 8px}
+p{margin:0 0 14px}
+code,.mono{font-family:"Roboto Mono",ui-monospace,monospace;font-size:13px}
+.sub{color:var(--mid);font-size:14px;margin-bottom:26px}
+.rule{height:4px;background:var(--blue);width:64px;margin:18px 0 26px;border-radius:2px}
+.banner{background:var(--blue-soft);border-left:4px solid var(--blue);padding:16px 18px;margin:0 0 30px;border-radius:0 6px 6px 0}
+.banner .mono{color:var(--blue);font-weight:500}
+.card{border:1px solid var(--line);border-radius:8px;padding:18px 20px;margin:0 0 16px}
+.card.top{border-left:4px solid var(--blue)}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.chip{font-family:"Roboto Mono",monospace;font-size:11px;padding:4px 9px;border-radius:20px;border:1px solid var(--line);color:var(--mid);background:#fafbfd}
+.chip.sup{background:var(--green-soft);border-color:#bfe0cc;color:var(--green)}
+.chip.chal{background:var(--red-soft);border-color:#f3c9c5;color:var(--red)}
+.conf{font-family:"Roboto Mono",monospace;font-size:12px;color:var(--blue);font-weight:500;float:right}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mid);font-weight:600}
+td.num{font-family:"Roboto Mono",monospace;white-space:nowrap}
+.scroll{overflow-x:auto}
+.box{border-radius:8px;padding:18px 20px;margin:18px 0}
+.box.warm{background:var(--warm);border:1px solid #f0dca8}
+.box.blue{background:var(--blue-soft);border:1px solid #c9d9f8}
+.box.red{background:var(--red-soft);border:1px solid #f3c9c5}
+.box h3{margin-top:0}
+ul{margin:0 0 14px;padding-left:20px}
+li{margin-bottom:7px}
+.ref{font-size:13px;padding:11px 0;border-bottom:1px solid var(--line)}
+.ref a{color:var(--blue);word-break:break-all}
+.tag{font-family:"Roboto Mono",monospace;font-size:10px;padding:2px 7px;border-radius:3px;margin-right:7px;text-transform:uppercase;letter-spacing:.03em}
+.tag.ok{background:var(--green-soft);color:var(--green)}
+.tag.part{background:var(--warm);color:var(--warn)}
+.tag.un{background:var(--red-soft);color:var(--red)}
+.foot{margin-top:48px;padding-top:18px;border-top:2px solid var(--line);font-size:13px;color:var(--mid)}
+.safety{display:grid;gap:12px;margin:16px 0}
+@media(min-width:700px){.safety{grid-template-columns:1fr 1fr 1fr}}
+.safety>div{border-radius:8px;padding:14px 16px;font-size:14px}
+.s-ok{background:var(--green-soft);border:1px solid #bfe0cc}
+.s-cav{background:var(--warm);border:1px solid #f0dca8}
+.s-no{background:var(--red-soft);border:1px solid #f3c9c5}
+.safety h3{font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Vehicle Counting &amp; Classification from Traffic Camera Video</h1>
+<div class="sub">Storm Research briefing · five-lens synthesis with adversarial verification · 1 October 2026<br>
+Prepared for: a traffic engineer building a CV pipeline to objective-truth accuracy on fixed overhead cameras</div>
+<div class="rule"></div>
+
+<div class="banner">
+  <strong>Verification status</strong><br>
+  <span class="mono" id="vbanner"><strong>6 of 6 clusters verified · 19 citations checked.</strong> 2 fabricated framings removed · 1 misattribution corrected (FHWA → a contested UK study) · 1 market-size claim rejected as unverifiable · 1 dead URL replaced · ~24 claims corrected · 3 sources demoted · 1 top-ranked finding partially overturned. Zero figures found fabricated outright; the failures were in <em>framing and attribution</em>, not invented numbers.</span>
+</div>
+
+<div class="box warm">
+  <h3>Panel disclosure</h3>
+  <p style="margin:0">The five "experts" are author-constructed research lenses, not independent domain authorities. Agreement across lenses is a <strong>strong hypothesis</strong>, not consensus of the field. Where all five converge, that is noted as such — it still requires the primary-source check.</p>
+</div>
+
+<h2>The 60-second summary</h2>
+
+<p><strong>Settled:</strong> vehicle <em>detection</em> on traffic video is good enough. What is not solved — and has never been independently validated — is <strong>FHWA 13-class classification from a fixed overhead camera</strong>. The geometry that makes turning movements countable is the same geometry that hides axles, and FHWA's classes are <em>defined</em> by axle count and spacing. Deployed systems therefore ship 6 classes or truck <em>groups</em>, never 13.</p>
+
+<p><strong>Contested:</strong> what the published accuracy numbers mean. Headline "95%+" figures appear to be per-site, vendor-reported, on collapsed class schemes, with human QC inside the number. The only large independent multi-vendor validation found error spanning more than an order of magnitude across vendors and sites.</p>
+
+<p><strong>The actionable asymmetry:</strong> three lenses independently conclude that the missing artifact in this industry is not a better detector but a <strong>published, audited, per-interval accuracy figure with a class confusion matrix</strong> — and that incumbents are structurally unable to supply one, because their installed base is sold on an unaudited number.</p>
+
+<h2>Five key findings, ranked by evidence quality</h2>
+
+<div class="card top">
+  <span class="conf">confidence 7/10</span>
+  <h3>1. Full FHWA-13 classification from video is unachieved — but not for the reason all five lenses gave</h3>
+  <p><strong>What is verified:</strong> Chen et al. (<em>J. Computing in Civil Engineering</em> 39(3)) state that no vision-based method has reached desired accuracy across all 13 classes — "primarily due to the <strong>interclass similarity</strong> issue, particularly among trucks." Vendors who publish at all publish 6 classes or truck groups.</p>
+  <div class="box red">
+    <strong>Correction — "axles are unobservable from video" is overstated, and all five lenses asserted it.</strong> The paper cited as evidence for that claim does <em>not</em> name unobservable axles as the cause. It <strong>extracts axle configuration from surveillance video</strong> — its title is "Automated FHWA Vehicle Classification Using Combined <em>Semantic and Geometric</em> Features Extracted from Surveillance Videos." The barrier it identifies is interclass <em>similarity</em>, not missing information.
+    <p style="margin:10px 0 0">This is the clearest case in the briefing of lens convergence being <em>wrong</em>. Five independent lenses agreed on a mechanism; the primary source contradicts it. It also partially rehabilitates geometric feature extraction, which two lenses dismissed.</p>
+  </div>
+  <p><strong>A second, harder ceiling is confirmed:</strong> rare classes are sample-starved even <em>with</em> axle sensors. ODOT FHWA-OK-14-17 recorded class 7 <span class="mono">n=42</span>, class 11 <span class="mono">n=47</span>, class 12 <span class="mono">n=64</span> out of <span class="mono">20,099</span> vehicles. That is a ground-truth labelling ceiling that bounds <em>any</em> supervised vision model — you cannot train or validate what you cannot sample.</p>
+  <div class="meta"><span class="chip sup">Academic</span><span class="chip sup">Practitioner</span><span class="chip chal">All 5 lenses wrong on the mechanism</span><span class="chip sup">Sample starvation VERIFIED</span></div>
+</div>
+
+<div class="card top">
+  <span class="conf">confidence 7/10</span>
+  <h3>2. Independent validation shows an order-of-magnitude error spread</h3>
+  <p><strong>Verified verbatim.</strong> NCHRP Web-Only Document 436 (Project 03-144, Tsapakis et al., TTI, 2025): motorized volumes from video-based systems "varied significantly (WMAPE = 1.4% − 33.7%) by vendor, equipment model, and intersection"; non-motorized <span class="mono">3.6%–93.7%</span>, and "most video-based systems undercounted non-motorized users." The 3.6% best case required <em>two dedicated cameras on opposite corners, extended calibration and high mounting</em> — the good number is an artifact of effort, not algorithm.</p>
+  <p>Separately, <strong>inductive loop detectors</strong> in the same document scored WMAPE <span class="mono">4.0%–45.5%</span>. Different modality, different chapter — no contradiction. A hybrid V2X deployment at four Phoenix intersections scored <span class="mono">0.6%–4.2%</span>.</p>
+  <p><strong>Two author-stated limits that matter directly here:</strong> accuracy degrades as volume rises, and <strong>turning-movement counts are less accurate than through movements</strong>. The deliverable this project is aiming at is the harder one.</p>
+  <p><em>Confidence reduced 8→7:</em> this is a <strong>Web-Only Document</strong>, which its own front matter states "has not been subjected to the formal TRB peer review process." Cite as practitioner guidance, not peer-reviewed literature. Occlusion is one listed cause among several, not <em>the</em> named primary failure mode as originally reported.</p>
+  <div class="box red" style="margin:14px 0 0">
+    <strong>Correction — the UDOT "20-point spread" was over-framed.</strong> The figures (96.4% Traficon / 92.0% Autoscope / 85.2% Iteris / 75.8% Peek) are verbatim from Martin, Dharmavaram &amp; Stevanovic, <em>Evaluation of UDOT's Video Detection Systems</em>, MPC-04-166 — but it dates from <strong>December 2004</strong>, it is <strong>not independent of UDOT</strong> (it evaluates UDOT's own installed systems, with a UDOT advisory committee and UDOT-supplied Peek hardware), and the spread is <strong>confounded by unequal testing</strong>: Peek 4 sites, Iteris 2, Autoscope 1, Traficon 1 — 8 intersections total. The authors state plainly: <em>"These results cannot be generalized because of the difference in the numbers of locations tested."</em> The claim that the four vendors published "similar spec-sheet claims" appears <strong>nowhere in the report</strong> — that was lens editorialising, and I repeated it.
+  </div>
+  <p style="margin-top:14px">Precision on the weather figures: 87.2% was day <em>and</em> dusk measured separately; the 81.3% "inclement weather" figure is specifically the <strong>snow</strong> condition. Night was 73.4% with 19.9% false calls.</p>
+  <div class="meta"><span class="chip sup">Practitioner</span><span class="chip sup">Skeptic</span><span class="chip sup">Historian</span><span class="chip chal">Demoted: not peer-reviewed</span><span class="chip chal">UDOT data is 2004, confounded, not independent</span></div>
+</div>
+
+<div class="card top">
+  <span class="conf">confidence 8/10</span>
+  <h3>3. Production counting does not depend on unbroken tracking</h3>
+  <p>Published tracking performance is far weaker than headline MOTA figures suggest — best PR-MOTA on UA-DETRAC reportedly ~21–24%, and the AI City Challenge's 0.9389 headline is 70% weighted on <em>efficiency</em>, not accuracy. Production systems resolve this architecturally: project to the ground plane, then count <strong>directional tripwire crossings per approach, paired into OD zone pairs</strong>. A stopped vehicle never crosses; detector flicker cannot fabricate a crossing; fragmentation becomes largely irrelevant.</p>
+  <div class="meta"><span class="chip sup">Practitioner</span><span class="chip sup">Academic</span><span class="chip chal">Tension: Academic says tracking is broken; Practitioner says deployments work</span></div>
+</div>
+
+<div class="card top">
+  <span class="conf">confidence 6/10</span>
+  <h3>4. Vendor accuracy figures are self-published and uncited — but the "human-in-the-loop" reading was wrong</h3>
+  <div class="box red" style="margin:0 0 14px">
+    <strong>Correction — a fabricated quotation was removed.</strong> The research lens reported that Miovision attributes its accuracy to "AI algorithms <em>and</em> visual inspections by technicians," implying a human-in-the-loop SLA. Verification against the live page found <strong>that conjunction does not exist</strong>. The phrase "industry-leading AI algorithms" appears nowhere; the technician sentence is a <em>separate adjacent tile</em> ("Visual inspection of video data, by a technician, ensures consistency throughout the full study period") with no causal link stated. Miovision also <em>does</em> advertise 13-bin FHWA output. The inference was mine to check and I passed it on unverified.
+  </div>
+  <p><strong>What survives verification:</strong> "Miovision traffic data is 95%+ accurate on 6 vehicle classifications" is verbatim — and that figure <strong>carries no citation</strong>. Miovision's only third-party-sourced numbers are <em>volume</em> accuracy (96.4% Albeck Gerken, 99.5% MnDOT, 99% URS, 97.5% AlburyCity) — none for classification.</p>
+  <p>Flock Safety's study: 92.3% classification over six classes, count accuracy ~95.6–96.0% — from <strong>one site, one day, six hours</strong>, vendor-hosted with no named author or institution, yet self-described as "an independent field evaluation." Its classification comparison had <em>no sensor baseline at all</em>: "Caltrans in-pavement sensors at this site do not produce classification data and were therefore excluded."</p>
+  <p>GoodVision is the most candid of the three: it claims <strong>no accuracy percentage</strong>, arguing that reporting a truck <em>group</em> beats an unverifiable exact class — "No wrong class, and no unclassified vehicle."</p>
+  <p><strong>The economic reading stands, and its pricing is now verified against the primary document.</strong> Fort Bend County TX Bid 26-009, awarded 26 Aug 2025 to Quality Traffic Data LLC, term 1 Oct 2025 – 30 Sep 2026:</p>
+  <div class="scroll"><table>
+    <tr><th>Deliverable</th><th>Winning bid</th><th>Other bids</th></tr>
+    <tr><td>12-hr turning movement count, vehicles only</td><td class="num">$450</td><td class="num">$550 / $625 / $630</td></tr>
+    <tr><td>AM+PM peak TMC (2+2 hr)</td><td class="num">$220</td><td class="num">$250 / $325 / $300</td></tr>
+    <tr><td>12-hr TMC incl. peds + bikes</td><td class="num">$350</td><td class="num">$550 / $625 / $630</td></tr>
+    <tr><td>24-hr approach count <em>with classification</em></td><td class="num">$100–$500</td><td class="num">per approach</td></tr>
+    <tr><td><strong>Total annual contract</strong></td><td class="num"><strong>$34,575</strong></td><td class="num">210 counts</td></tr>
+  </table></div>
+  <p>The count feeds an HCM analysis whose own error swamps it, and nobody downstream is penalised for a wrong turning movement — so the marginal dollar spent on verified accuracy returns zero, while the marginal dollar spent cutting field labour returns the whole margin.</p>
+  <div class="meta"><span class="chip sup">Economist</span><span class="chip sup">Skeptic</span><span class="chip chal">Practitioner lens fabricated the key quote</span><span class="chip chal">All sources vendor self-published</span></div>
+</div>
+
+<div class="card top">
+  <span class="conf">confidence 7/10</span>
+  <h3>5. Essentially every public dataset is closed to commercial use</h3>
+  <p><strong>Verified against each dataset's primary licence page:</strong></p>
+  <div class="scroll"><table>
+    <tr><th>Dataset</th><th>Licence as stated</th><th>Commercial use</th></tr>
+    <tr><td>MIO-TCD</td><td>CC BY-<strong>NC-SA</strong> 4.0 <em>(not NC-ND as earlier reported)</em>; published by Miovision, a direct competitor</td><td><strong>No</strong></td></tr>
+    <tr><td>UA-DETRAC</td><td>None stated; official site redirects to a university page</td><td><strong>No grant</strong></td></tr>
+    <tr><td>AI City / CityFlow</td><td>NVIDIA Dataset Licence Agreement — non-commercial academic only; the ban <strong>extends to models trained on it</strong></td><td><strong>No</strong></td></tr>
+    <tr><td>BDD100K</td><td>Data: UC Regents / BAIR Open Research Commons (education, research, non-profit). Commercial use only for BAIR members. The GitHub BSD-3 licence covers the <strong>toolkit only</strong></td><td><strong>No</strong></td></tr>
+    <tr><td>VisDrone</td><td>No LICENSE file; toolkit "for research purpose only"</td><td><strong>No grant</strong></td></tr>
+  </table></div>
+  <p><strong>None of the five is cleanly usable commercially.</strong> Two traps worth naming: BDD100K's repository BSD-3 licence applies to code, not data — an easy misread; and <code>cityflow-project.github.io</code> is an unrelated Apache-2.0 traffic simulator, not the CityFlow dataset. Note also that NVIDIA's restriction follows the <em>trained model</em>, not just the data.</p>
+  <div class="meta"><span class="chip sup">Academic</span><span class="chip sup">Skeptic</span></div>
+</div>
+
+<div class="card top">
+  <span class="conf">confidence 8/10</span>
+  <h3>6. The reference standard itself was off by 24.5% — verified verbatim</h3>
+  <p>In Flock's study, the <strong>Caltrans inductive loop detectors used as the comparison baseline overcounted by ~24.5%</strong> — "induction loop detectors reported a total of 3,392 vehicles, representing an overcount of approximately 24.5% relative to the reference observations" (3,392 / 2,724 = 1.245). Worst "during periods with frequent lane changes and queuing near signalized intersections."</p>
+  <p>This is the single most consequential number in the briefing for anyone defining "objective truth": the sensor the industry treats as ground truth was wrong by a quarter, in the exact conditions an intersection study cares about.</p>
+  <div class="meta"><span class="chip sup">Skeptic</span><span class="chip sup">VERIFIED verbatim against primary source</span></div>
+</div>
+
+<div class="card top">
+  <span class="conf">confidence 8/10</span>
+  <h3>7. Capital has moved away from counting toward subscriptions and inferred data</h3>
+  <div class="scroll"><table>
+    <tr><th>Transaction</th><th>Figure</th><th>Status</th></tr>
+    <tr><td>Iteris FY2024 revenue (FY ended 31 Mar 2024)</td><td class="num">$172.0M</td><td>confirmed</td></tr>
+    <tr><td>Almaviva acquires Iteris, $7.20/sh, closed 1 Nov 2024</td><td class="num">~$335M equity (<strong>1.95×</strong> rev)</td><td>confirmed</td></tr>
+    <tr><td>Jacobs acquires StreetLight Data, 4 Feb 2022</td><td class="num">$190.8M base cash<br>(~$197.9M all-in)</td><td>corrected</td></tr>
+    <tr><td>Vontier sells Global Traffic Technologies to Miovision, 14 Apr 2023</td><td class="num">$108.4M</td><td>corrected (was "~$110M")</td></tr>
+    <tr><td>Cubic acquires Trafficware (2018) / GRIDSMART (2019)</td><td class="num">$235.7M / ~$87M</td><td>confirmed</td></tr>
+    <tr><td>Rekor FY2024 revenue</td><td class="num">$46.03M (+32%)</td><td>confirmed</td></tr>
+    <tr><td>Rekor FY2024 adjusted EBITDA</td><td class="num"><strong>−$29.10M</strong> full year</td><td>confirmed — the Q4-only −$4.7M figure understated it</td></tr>
+  </table></div>
+  <p>Cellular-derived data commands the richer multiple: Jacobs paid ~$190.8M for StreetLight against roughly 1.95× revenue for Iteris. <strong>The market is rewarding the inferred-data approach over the observed-data one</strong> — a direct tension with a quality-first thesis.</p>
+  <p><em>Rejected:</em> the "ITS market $42.55B → $55.36B, 5.4% CAGR" figure exists only in a vendor press release with paywalled, proprietary methodology. <strong>Not citable as fact.</strong> StreetLight's "$40.5M raised" comes from PitchBook/Tracxn, unverifiable against any filing.</p>
+  <div class="meta"><span class="chip sup">Economist</span><span class="chip sup">VERIFIED against SEC filings</span><span class="chip chal">1 claim rejected outright</span></div>
+</div>
+
+<div class="card top">
+  <span class="conf">confidence 9/10</span>
+  <h3>8. The standards are softer than they look — and one key counter-claim was misattributed</h3>
+  <p><strong>VDOT VTRC 26-R53 — confirmed verbatim.</strong> A stakeholder survey "established a 5% error threshold"; a "formal eight-step 'fail-fast' protocol" runs from 24-hour volumetric screening to classification under adverse conditions; continuous count stations are "calibrat[ed]… against absolute, human-verified video ground truth," at a stated <strong>$321,300 per device certification request</strong>. <em>Note the method: they certify against human-verified video, which is exactly the approach this project adopted.</em></p>
+  <p><strong>FHWA TMG is advisory, not a standard.</strong> The "10% by class" bar is a <em>should</em>-level recommendation (§3.2.3, p. 3-15: algorithms should "correctly classify all vehicle types on their roadways (within 10% of the counting tolerances, bias, and error by class)"). FHWA Notice N 5600.7, which transmitted the first TMG in 1985, states it is "an advisory document… not to be considered a Federal Standard."</p>
+  <div class="box red">
+    <strong>Correction — "manual counts carry 4–5% classification error by FHWA's own accounting" is FALSE as attributed, and the figure itself is contested.</strong> No FHWA document states it; the 2022 TMG treats manual error only qualitatively. The numbers originate in Zheng &amp; McDonald (2012), a <em>UK</em> national-census study (&lt;1% total count error, 4–5% classification error). And Majumder &amp; Wilmot (2023) re-measured and obtained <strong>1.05% total / 1.08% classification error</strong>.
+    <p style="margin:10px 0 0"><strong>This materially rescues the "objective truth" objective.</strong> The skeptic's strongest argument against it — that human counting is too error-prone to serve as a reference — rests on a misattributed and contested figure. Careful human video counting may be an order of magnitude better than that claim implied.</p>
+  </div>
+  <p><strong>ASTM E1318-09(2024)</strong> defines four WIM types with per-application tolerances. The nuance matters: Type IV <em>is</em> specified for weight enforcement — it is simply "not approved for use in the United States," which is <em>why</em> static scales retain the legal role. Not quite the clean "WIM never writes citations" story.</p>
+  <div class="meta"><span class="chip sup">Historian</span><span class="chip sup">Skeptic</span><span class="chip sup">VERIFIED against primary sources</span><span class="chip chal">1 misattribution corrected</span></div>
+</div>
+
+<h2>The hidden connection</h2>
+<div class="box blue">
+<p style="margin:0"><strong>Three lenses describe one causal chain without any of them seeing the whole of it.</strong></p>
+<p>The academic shows tracking is genuinely weak (~24% PR-MOTA). The practitioner shows production systems sidestep tracking entirely via tripwire crossings and OD pairing. The historian shows video detection never received an ASTM-style validation protocol, and the economist shows why nobody has an incentive to publish one.</p>
+<p style="margin:0">Put together: <strong>the single most important architectural fact in this field — that you must count crossings, not tracks — is not widely documented because there is no forcing function to document it.</strong> The absence of a validation standard didn't just hide bad accuracy; it suppressed the circulation of the design knowledge that produces good accuracy. A newcomer reconstructs it by failing, as this project did.</p>
+</div>
+
+<h2>Key assumption · the missing sixth lens</h2>
+<div class="box warm">
+<p><strong>No lens addressed the camera owner.</strong> All five treat the camera as a given. None examined the agency that owns it — its retention policy, its liability posture, its willingness to let a third party build a commercial product on a public feed.</p>
+<p>The skeptic brushed this, and verification both confirmed and constrained it. FHWA-HOP-16-033 Ch. 7 records verbatim that Oregon DOT "CCTV data will generally not be recorded or archived… Recorded images are considered public information and can be used as evidence," and that NYSDOT retains recordings "only for the minimum possible time."</p>
+<p style="margin:0"><strong>But the inference is mine, not the source's.</strong> That document is a best-practices survey of TMC recording policy; it never states public-records liability as <em>the</em> driver, and it never addresses the short rolling window on public-facing feeds. The honest phrasing is that agency practice is <em>consistent with</em> a policy-driven no-archive norm — not that FHWA documents one. It still reframes the terms-of-use question from "is it allowed" to "does the owner have an active reason to prevent it," and a sixth lens — the public-sector data steward — could change the conclusions about using public feeds at all.</p>
+</div>
+
+<h2>Actionable insight</h2>
+
+<h3>1. Count crossings, not tracks — architecturally, now</h3>
+<p>This project measured 2.01× count inflation from track fragmentation and one vehicle resolving into nine track IDs. Tripwire crossings paired into OD zones make that failure mode largely moot. This is a redesign, not a tuning exercise, and it should precede any further work on the tracker.</p>
+
+<h3>2. Treat geometric length classification as unproven, and test it narrowly</h3>
+<p>Two lenses challenge it directly: projected length error is dominated by the bounding-box bottom edge (wrong by the vehicle's height), trailer gaps read as background, and turning vehicles break the vanishing-point assumption. Homography is validated for <em>speed</em> (Sochor et al., ~1.10 km/h mean error), not for length-based class. <strong>However</strong>, the published failures concern Class 5 vs Class 8 — a within-HV distinction. A Car/HV split at ~22 ft is far coarser. Test that specific boundary before adopting or discarding the method.</p>
+
+<h3>3. Validate per 15-minute interval, signed, with a confusion matrix</h3>
+<p>Counting accuracy is the difference of two large error streams, so a weak tracker can report 99% volume accuracy purely by cancellation. Daily or period totals hide this. Signed per-interval movement error plus a class confusion matrix is the only honest form — and it is what no incumbent publishes.</p>
+
+<h3>4. Build the audit loop before tuning the detector</h3>
+<p>A camera that passed validation last month fails after a PTZ nudge, a lens film, or a seasonal sun angle, and nothing in the pipeline announces it. Drift monitoring and a review queue are the deliverable, not an afterthought. Agency QA reportedly rejects counts for unexplainable approach imbalance and non-conserving corridor flow far more often than for a wrong truck class.</p>
+
+<h3>5. Do not train on the public datasets without a licence review</h3>
+<p>The commercially usable corpus is close to empty. Own-collected, own-labelled data is not merely a moat — on current reading it may be the only lawful option.</p>
+
+<h2>Claim safety guide</h2>
+<div class="safety">
+  <div class="s-ok"><h3>Safe to assert</h3>
+    <ul style="margin:0;padding-left:17px">
+      <li>No vision method has reached desired accuracy across all 13 FHWA classes (interclass similarity among trucks)</li>
+      <li>Rare classes are sample-starved even with axle sensors — a labelling ceiling on any model</li>
+      <li>Every major public dataset is non-commercial; NVIDIA's restriction follows the trained model</li>
+      <li>Deployed systems ship 6 classes or truck groups</li>
+      <li>Vendor accuracy figures are self-reported and not peer-reviewed</li>
+      <li>Public datasets are predominantly non-commercial</li>
+    </ul></div>
+  <div class="s-cav"><h3>Assert with caveat</h3>
+    <ul style="margin:0;padding-left:17px">
+      <li>NCHRP WMAPE ranges — verified verbatim, but cite as non-peer-reviewed practitioner guidance</li>
+      <li>UDOT vendor percentages — still pending verification</li>
+      <li>Procurement prices — <strong>now verified</strong>, but still one county, one contract, one year</li>
+      <li>Tripwire+OD as "the" production architecture — strongly indicated, single lens</li>
+    </ul></div>
+  <div class="s-no"><h3>Do not assert</h3>
+    <ul style="margin:0;padding-left:17px">
+      <li>Any accuracy figure for this project — no ground truth exists yet</li>
+      <li>That geometric length classification works at the Car/HV boundary — untested, though verification partly rehabilitated geometric features</li>
+      <li>That "axles are unobservable from video" — the cited primary source extracts them</li>
+      <li>That a specific incumbent's number is dishonest — the evidence shows structure, not intent</li>
+      <li>Any ITS market-size figure — the only available source is an unverifiable vendor press release</li>
+    </ul></div>
+</div>
+
+<h2>The frontier question</h2>
+<div class="box blue">
+<p style="margin:0"><strong>If no public dataset carries axle-level FHWA truth, and the incumbent reference standards themselves carry large error, what does "objective truth" actually mean for vehicle classification — and is a carefully human-counted video a sufficient reference, or does a defensible claim require a co-located axle sensor?</strong></p>
+<p style="margin:12px 0 0">This is the question that decides whether the stated objective is reachable as framed. For <em>volumes</em>, a carefully counted video is plausibly complete truth — the video records everything that passed. For <em>classification</em>, the reference may need to be physical.</p>
+<p style="margin:12px 0 0"><strong>Verification shifted this toward "reachable."</strong> The strongest argument against human-counted video as a reference was a 4–5% manual classification error attributed to FHWA — which turns out to be misattributed to a contested UK study, with a 2023 re-measurement at ~1.1%. And VDOT's own 2026 acceptance framework certifies devices against "absolute, human-verified video ground truth." The method this project chose is the method a state DOT uses.</p>
+</div>
+
+<h2>References</h2>
+<div id="refs">
+<div class="ref"><span class="tag part">corrected</span>Tsapakis, I., Anderson, P., Florence, D., Khodadadi, A., Sunkari, S., Turner, S. (TTI); Wu, Y.-J., Pudasaini, P. (Univ. of Arizona); Chen, B. <em>Leveraging Existing Traffic Signal Assets to Obtain Quality Traffic Counts: A Guide.</em> <strong>NCHRP Web-Only Document 436</strong> (Project 03-144), TRB, 2025, 89 pp. DOI 10.17226/29214. <strong>Not peer-reviewed.</strong> — <a href="https://www.nationalacademies.org/read/29214/chapter/4">video, ch.4</a> · <a href="https://www.nationalacademies.org/read/29214/chapter/3">loops, ch.3</a></div>
+<div class="ref"><span class="tag part">corrected</span>Martin, P.T., Dharmavaram, G., Stevanovic, A. <em>Evaluation of UDOT's Video Detection Systems</em>, MPC-04-166, Univ. of Utah Traffic Lab for UDOT, <strong>Dec 2004</strong>. NOT independent of UDOT; 8 intersections, unequal per-vendor sampling; authors state results "cannot be generalized" — <a href="https://www.ugpti.org/resources/reports/downloads/mpc04-166.pdf">ugpti.org</a></div>
+<div class="ref"><span class="tag part">corrected</span>Minge, E., Kotzenmacher, J., Peterson, S. <em>Evaluation of Non-Intrusive Technologies for Traffic Detection</em>, MN/RC 2010-36, SRF for Mn/DOT, <strong>Sept 2010</strong>. Mn/DOT-led pooled fund TPF-5(171); "26 sensors" covers Phases I–II only. <strong>Original URL dead (404)</strong> — <a href="https://mdl.mndot.gov/_flysystem/fedora/2023-01/201036.pdf">live copy at mdl.mndot.gov</a></div>
+<div class="ref"><span class="tag part">corrected</span>Miovision Scout traffic studies specification — "95%+ accurate on 6 vehicle classifications" verbatim and uncited; the AI+technician conjunction reported by a lens does NOT exist on the page — <a href="https://miovision.com/scout-plus/traffic-studies/">miovision.com</a></div>
+<div class="ref"><span class="tag part">corrected</span>GoodVision — reports truck groups (5–7 / 8–10 / 11–13) and claims no accuracy figure; recommends "a roadside axle camera" (the word "near-horizontal" was a lens embellishment) — <a href="https://blog.goodvisionlive.com/fhwa-13-class-vehicle-classification">blog.goodvisionlive.com</a></div>
+<div class="ref"><span class="tag ok">verified</span>Flock Safety (vendor-published, 1 site / 1 day / 6 hours, no named author): 95.6–96.0% count, 92.3% classification on 6 classes; Caltrans loops overcounted 24.5% (3,392 vs 2,724) — <a href="https://www.flocksafety.com/customers/assessing-the-accuracy-of-computer-vision-methods-for-traffic-data-collection">flocksafety.com</a></div>
+<div class="ref"><span class="tag ok">verified</span>Lan, C-L. &amp; Zhao, M. (2026). <em>Developing a Standardized Acceptance Framework for Traffic Count Devices</em>, VTRC 26-R53 — 5% threshold, 8-step fail-fast protocol, $321,300 per <strong>device certification request</strong> — <a href="https://vtrc.virginia.gov/media/vtrc/vtrc-pdf/vtrc-pdf/26-R53.pdf">vtrc.virginia.gov</a></div>
+<div class="ref"><span class="tag part">corrected</span>FHWA (2022) <em>Traffic Monitoring Guide</em> §3.2.3 p.3-15 — "within 10% of the counting tolerances, bias, and error by class" is a <em>should</em>-level recommendation; FHWA Notice N 5600.7 (1985) calls the TMG "an advisory document… not to be considered a Federal Standard" — <a href="https://www.fhwa.dot.gov/policyinformation/tmguide/2022_TMG.pdf">fhwa.dot.gov</a></div>
+<div class="ref"><span class="tag part">corrected</span>FHWA-HOP-16-033 ch.7, <em>TMC Video Recording and Archiving Best General Practices</em> — ODOT/NYSDOT/MnDOT quotes verbatim; a best-practices survey, NOT a rule, and it does not state the causal claim — <a href="https://ops.fhwa.dot.gov/publications/fhwahop16033/chap7.htm">ops.fhwa.dot.gov</a></div>
+<div class="ref"><span class="tag part">pending</span>Lyu et al., UA-DETRAC benchmark, CVIU 2020 — <a href="https://www.albany.edu/faculty/mchang2/files/2020_01_CVIU_DETRAC.pdf">albany.edu</a></div>
+<div class="ref"><span class="tag part">pending</span>Gloudemans &amp; Work, CVPRW 2021 — <a href="https://arxiv.org/pdf/2104.05823">arxiv.org/pdf/2104.05823</a></div>
+<div class="ref"><span class="tag part">pending</span>Naphade et al., 4th AI City Challenge, CVPRW 2020 — <a href="https://arxiv.org/pdf/2004.14619">arxiv.org/pdf/2004.14619</a></div>
+<div class="ref"><span class="tag part">pending</span>Sochor et al., BrnoCompSpeed, CVIU 2017 — <a href="https://arxiv.org/pdf/1702.06451">arxiv.org/pdf/1702.06451</a></div>
+<div class="ref"><span class="tag part">corrected</span>Chen et al., "Automated FHWA Vehicle Classification Using Combined Semantic and Geometric Features Extracted from Surveillance Videos," <em>JCCE</em> 39(3) — cause is interclass similarity, NOT unobservable axles; the method extracts axle configuration from video — <a href="https://ascelibrary.org/doi/10.1061/JCCEE5.CPENG-6413">ascelibrary.org</a></div>
+<div class="ref"><span class="tag ok">verified</span>Refai et al. (Dec 2014), ODOT FHWA-OK-14-17 — class 7 n=42, class 11 n=47, class 12 n=64 of 20,099 axle-sensed vehicles — <a href="https://www.odot.org/research/FinalRep_2250_FHWA-OK-14-17.pdf">odot.org</a></div>
+<div class="ref"><span class="tag ok">verified</span>Fort Bend County TX Bid 26-009 tabulation, awarded 26 Aug 2025 to Quality Traffic Data LLC; every unit price and the $34,575 / 210-count total check exactly — <a href="https://www.fortbendcountytx.gov/sites/default/files/document-central/document-central/purchasing-documents/current-bids-rfps-rfqs-quotes/B26-009.Tabulation.pdf">fortbendcountytx.gov</a></div>
+<div class="ref"><span class="tag ok">verified</span>Iteris / Almaviva SEC 8-K — $7.20/share ≈ $335M equity, 1.95× FY2024 revenue of $172.0M, closed 1 Nov 2024 — <a href="https://www.sec.gov/Archives/edgar/data/350868/000110465924087480/tm2421283d1_ex99-1.htm">sec.gov</a></div>
+<div class="ref"><span class="tag part">corrected</span>Jacobs 10-Q — $190.8M base cash plus $0.9M equity, $5.2M options, ~$1.0M debt ≈ $197.9M all-in — <a href="https://www.sec.gov/Archives/edgar/data/52988/000005298822000063/jec-20220701.htm">sec.gov</a></div>
+<div class="ref"><span class="tag ok">verified</span>BDD100K — data under UC Regents/BAIR Open Research Commons (non-commercial); repo BSD-3 covers the toolkit only — <a href="https://github.com/ucbdrive/bdd100k/blob/master/LICENSE">github.com/ucbdrive/bdd100k</a></div>
+<div class="ref"><span class="tag un">rejected</span>Zheng, P. &amp; McDonald, M. (2012) "An Investigation on the Manual Traffic Count Accuracy," <em>Procedia SBS</em> 43:226–231 — the true source of the "4–5% manual classification error" figure wrongly attributed to FHWA; contested by Majumder &amp; Wilmot (2023), <em>J. Transp. Technol.</em> 13(4):497–523, which measured 1.05% / 1.08%</div>
+<div class="ref"><span class="tag ok">verified</span>FLIR Systems 8-K, 28 Dec 2012 — Traficon acquired for "approximately $46 million in cash" — <a href="https://www.sec.gov/Archives/edgar/data/0000354908/000110262412001023/flirsystemsinc.htm">sec.gov</a></div>
+</div>
+
+<div class="foot">
+Generated by the Storm Research pipeline: five parallel research lenses → contradiction mapping → synthesis → adversarial citation verification.
+The expert panel is author-constructed; convergence across lenses is a strong hypothesis, not field consensus.
+<strong>Verification complete: 19 citations checked across 6 clusters.</strong> Items still tagged <em>pending</em> were not individually verified and should be treated as lens-reported.
+</div>
+
+</div>
+</body>
+</html>

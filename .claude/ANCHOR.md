@@ -1,5 +1,5 @@
 # ANCHOR
-updated: 2026-10-01 (foundation CONFIRMED by user; grill complete)
+updated: 2026-10-01 (foundation confirmed; storm research done; ADR-0001 proposed)
 
 ## GOAL
 REFRAMED 2026-10-01 by the user, superseding the monetization framing:
@@ -104,7 +104,20 @@ was only the available starting point.
 - Split commits by concern; commit messages via -F file
 - Never quote an accuracy figure until ground truth exists
 
+- ADR-0001 PROPOSED 2026-10-01 (docs/adr/0001-count-crossings-not-tracks.md,
+  commit e1e3825): COUNT DIRECTIONAL TRIPWIRE CROSSINGS ON THE GROUND PLANE,
+  NOT TRACK IDENTITIES. Tracking demoted to short-transit continuity/direction.
+  Accepts a per-camera homography calibration as a prerequisite in exchange for
+  removing the ~2x fragmentation error by construction. Awaiting user sign-off.
+
 ## REJECTED
+- Counting track identities - measured 2.01x inflation; one Jeep = 9 track IDs
+- Post-hoc track stitching as the COUNTING method (tools/stitch.py) - improves
+  (380->189, re-acq 46%->21%) but leaves truth between 189 and 380 and puts a
+  free parameter inside the measurement (gap=2s -> 173 veh, gap=60s -> 144).
+  DEMOTED to a diagnostic; the re-acquisition signature stays as tracker health.
+- Pixel-domain virtual loop as the counting method - measured 79 vs YOLO's 48 on
+  the same clip with no way to adjudicate, and cannot classify. Cross-check only.
 - Space mean speed / platoon cross-correlation — "those things we can have for
   later, like platoon and stuff. lets do one at a time" (parked, not dead)
 - Phone data for OD matrices — "I don't want to do that now"; user's Replica
@@ -118,6 +131,33 @@ was only the available starting point.
 - ~30k-instance labelling + GPU training programme for v1 — would fix detection,
   which already works at 95-99%; classification is the broken half
 - Super-resolution to recover detail — hallucinates pixels, undefendable
+
+## RESEARCH FINDINGS (storm-research 2026-10-01, 19 citations verified)
+- VERIFIED: Caltrans inductive loops OVERCOUNTED 24.5% in a published head-to-head
+  (3,392 vs 2,724) - the industry's reference standard is itself badly wrong.
+- VERIFIED: VDOT VTRC 26-R53 certifies count devices against "absolute,
+  human-verified video ground truth", 5% threshold, 8-step fail-fast protocol.
+  OUR LOCKED TRUTH METHOD IS WHAT A STATE DOT USES.
+- VERIFIED: NCHRP Web-Only Doc 436 (NOT peer-reviewed) - video volume WMAPE
+  1.4-33.7%; loops 4.0-45.5%; authors state TURNING MOVEMENTS ARE LESS ACCURATE
+  THAN THROUGH MOVEMENTS and accuracy degrades as volume rises.
+- VERIFIED: ALL major public datasets are non-commercial (MIO-TCD CC BY-NC-SA 4.0,
+  UA-DETRAC no grant, AI City/CityFlow NVIDIA academic-only with the ban EXTENDING
+  TO MODELS TRAINED ON IT, BDD100K data non-commercial w/ BSD-3 covering toolkit
+  only, VisDrone research-only). Own-labelled data is the only lawful route.
+- VERIFIED: rare FHWA classes are sample-starved even WITH axle sensors
+  (class 7 n=42, 11 n=47, 12 n=64 of 20,099) - a labelling ceiling on any model.
+- CORRECTED: "manual counts carry 4-5% classification error by FHWA's own
+  accounting" is FALSE as attributed (it is Zheng & McDonald 2012, UK) and is
+  CONTESTED - Majumder & Wilmot 2023 measured 1.05%/1.08%. This materially
+  rescues the objective-truth objective.
+- CORRECTED: "axles are unobservable from video" - ALL FIVE lenses asserted it;
+  the cited primary source (Chen et al., JCCE 39(3)) EXTRACTS axle configuration
+  from video and names INTERCLASS SIMILARITY as the barrier. Partially
+  rehabilitates geometric features for classification.
+- Vendor "95%+" figures are self-published and uncited for classification;
+  Miovision's only third-party numbers are VOLUME accuracy.
+- Agency price point: ~$450 per 12-hr TMC (Fort Bend County TX, verified).
 
 ## STATE
 foundation (locked, confirmed):
@@ -147,9 +187,10 @@ last verified step:
   count (gap=2 gives 173 vehicles, gap=60 gives 144).
 
 next action:
-  WRITE THE SPEC from the confirmed foundation above (write-prd stage). Do NOT
-  resume implementation first - Claude jumped to implementation three times and
-  the user corrected it each time.
+  AWAIT USER SIGN-OFF ON ADR-0001. Then action items 1-6 in that ADR:
+  calibration module -> qualified zone -> directional crossing counting ->
+  step-1 benchmark (one leg, one minute, Harbor Blvd, both count independently)
+  -> first real number on the 85/92.75/98 ladder -> open lessons.md.
   After the spec: step 1 of the ladder - pick ONE leg at SR-90 Harbor Blvd
   (footage already on disk, 311 s, 1280x720), take ONE MINUTE of it, both
   parties count independently, reconcile, and that becomes benchmark v1.

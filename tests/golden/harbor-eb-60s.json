@@ -1,0 +1,76 @@
+{
+  "benchmark_id": "harbor-eb-60s",
+  "status": "RECONCILED",
+  "created": "2026-10-01",
+  "source": {
+    "camera": "SR-90 (Imperial Hwy) at Harbor Blvd, CCTV 506, Caltrans District 12",
+    "clip": "_506__Harbor_Blvd_NW_Corner.ts",
+    "recorded": "2026-09-27 ~07:57 PDT (Sunday morning, light traffic)",
+    "resolution": "1280x720",
+    "fps_true": 25.0,
+    "window_frames": [
+      0,
+      1500
+    ],
+    "window_seconds": [
+      0.0,
+      60.0
+    ]
+  },
+  "definition": {
+    "what_is_counted": "A vehicle whose body crosses the vertical line x=600 within y=[300,680], travelling LEFT to RIGHT.",
+    "tripwire": {
+      "x": 600,
+      "y0": 300,
+      "y1": 680
+    },
+    "excluded": [
+      "crossings right-to-left",
+      "vehicles that approach but stop short without crossing",
+      "anything outside the y band"
+    ],
+    "note": "Defined by pixel geometry rather than by a movement label. The line spans TWO distinct flow bands (y~324-441 and y~519-634) which may be different movements; labelling is deferred to the turning-movement work."
+  },
+  "counts": {
+    "claude": {
+      "value": 15,
+      "uncertainty": "+/-3 (plausible range 13-18)",
+      "method": "paired virtual tripwires at x=580 and x=620, background-subtracted, peak-paired per lane row; direction from which line fires first. 43 raw (row,vehicle) events -> 33 L->R -> merged across rows within 0.5s -> ~15 vehicles.",
+      "known_weaknesses": [
+        "Row merging is ambiguous: groups like t=28.92/29.44/29.68 could be one slow vehicle or two.",
+        "No frame-by-frame review was possible; this is an instrument reading, not a careful human count.",
+        "NOT precise enough to serve as ground truth on its own."
+      ],
+      "recorded_before_seeing_user_count": true,
+      "outcome": "WRONG - 15 vs reference 20. True value fell OUTSIDE the stated +/-3 band."
+    },
+    "user": {
+      "value": 20,
+      "method": "independent visual count of GT_count_clip.mp4 (scrub/replay)",
+      "note": "REFERENCE VALUE. Claude conceded before seeing it that the user instrument is stronger here - frame-accurate scrub and replay, which Claude cannot do."
+    },
+    "reconciled": {
+      "value": 20,
+      "basis": "Claude could not dispute 20. Sweeping the merge rule in Claude's instrument yields 16-24 depending on parameters alone; 20 sits inside that range, so the instrument has no power to adjudicate. The user had the stronger instrument. See lessons.md L-001.",
+      "residual_uncertainty": "The benchmark rests on ONE human count. The locked method called for two independent counts and got them, but they disagreed and Claude conceded rather than the two converging. A second human count would strengthen this."
+    }
+  },
+  "cross_checks": {
+    "yolo_track_crossings_x600_eastbound": 24,
+    "yolo_adjusted_for_measured_2.01x_fragmentation": 12,
+    "paired_line_raw_events_L_to_R": 33,
+    "paired_line_merged": 15,
+    "comment": "Spread of 12-24 across methods. None is ground truth. This spread is precisely why the benchmark is needed.",
+    "claude_merge_rule_sweep": {
+      "range": [
+        16,
+        24
+      ],
+      "comment": "The count moves 50% on merge-parameter choice alone. The rule that reproduces 20 was deliberately NOT selected - that would make the benchmark circular."
+    }
+  },
+  "sanity_signals": {
+    "quiet_period": "No events between t=47s and t=60s - consistent with a red phase.",
+    "platoon_structure": "Events cluster from t=17s and t=32s onward, consistent with queue discharge after green."
+  }
+}

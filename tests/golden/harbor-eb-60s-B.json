@@ -1,0 +1,36 @@
+{
+  "benchmark_id": "harbor-eb-60s-B",
+  "status": "HELD_OUT - AWAITING USER COUNT",
+  "created": "2026-10-02",
+  "purpose": "Out-of-sample validation. harbor-eb-60s was used to FIND and FIX a defect, so it can no longer validate the method (lessons.md L-007). This is a different 60s window the method has never been tuned against.",
+  "source": {
+    "camera": "SR-90 at Harbor Blvd, CCTV 506, Caltrans D12 (SAME camera as benchmark A)",
+    "clip": "_506__Harbor_Blvd_NW_Corner.ts",
+    "window_frames": [3000, 4500],
+    "window_seconds_of_source": [120.0, 180.0],
+    "recorded": "2026-09-27 Sunday morning"
+  },
+  "definition": {
+    "identical_to": "harbor-eb-60s",
+    "what_is_counted": "A vehicle whose body crosses the vertical line x=600 within y=[300,680], travelling LEFT to RIGHT (eastbound approach volume: left-turns AND throughs together).",
+    "tripwire": {"x": 600, "y0": 300, "y1": 680}
+  },
+  "method_under_test": {
+    "frozen": true,
+    "description": "YOLO11n + ByteTrack -> tripwire crossing, direction from LOCAL motion at the crossing, counted only if within 30 degrees of perpendicular to the line.",
+    "no_tuning_permitted": "The threshold and all parameters were fixed on benchmark A BEFORE this window was cut. Changing anything after seeing the user's count would void this as an out-of-sample test."
+  },
+  "counts": {
+    "sealed_prediction": {
+      "value": 12,
+      "sealed_at": "2026-10-02, BEFORE any human count of this window",
+      "detail": "see benchmarks/harbor-eb-60s-B/sealed_prediction.json for per-crossing times and angles"
+    },
+    "user": {"value": null, "method": "independent visual count of GT2_count_clip.mp4"},
+    "reconciled": null
+  },
+  "caveats": [
+    "SAME camera and SAME day as benchmark A - this is a different-window test, not a different-site test. It controls for traffic but not for camera geometry or lighting.",
+    "A genuinely independent test needs a DIFFERENT CAMERA (Beach or Brea Blvd are on disk) and ideally a WEEKDAY, where queues and congestion are present."
+  ]
+}

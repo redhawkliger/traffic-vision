@@ -197,3 +197,21 @@ next action:
   NOTE: the camera-source question (Caltrans vs own hardware) is NOT urgent -
   step 1 runs on footage we already have.
   Uncommitted in repo: tools/stitch.py, tools/track.py, tools/eval_stitch.py.
+
+## MODEL TIERING (user plan, 2026-10-02)
+User is switching this work to cheaper models where appropriate.
+  Sonnet  -> implementing a decided design, running tests, refactoring
+  Haiku   -> mechanical fan-out (image classification, citation checks)
+  Opus    -> error analysis, architecture, interpreting results,
+             "is this number real?" judgements
+Rationale: the expensive model's value this project was almost entirely in
+CATCHING ITS OWN ERRORS (a window-filter bug that made +5% look like +20%; a
+fabricated vendor quote; recognising a 20/20 result was in-sample). Those are
+judgement tasks. Implementation against a written ADR is not.
+
+## BENCHMARKS
+- harbor-eb-60s   : RECONCILED, reference = 20 (user-counted). SPENT as a
+                    validator - it was used to find and fix a defect (L-007).
+- harbor-eb-60s-B : HELD OUT, awaiting user count. Sealed prediction = 12.
+                    DO NOT tune anything on this window before the user counts;
+                    doing so voids it as an out-of-sample test.

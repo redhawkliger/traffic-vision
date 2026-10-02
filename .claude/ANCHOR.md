@@ -215,3 +215,20 @@ judgement tasks. Implementation against a written ADR is not.
 - harbor-eb-60s-B : HELD OUT, awaiting user count. Sealed prediction = 12.
                     DO NOT tune anything on this window before the user counts;
                     doing so voids it as an out-of-sample test.
+
+## BENCHMARK DELIVERY PROTOCOL (user preference, 2026-10-02)
+User wants the numbered/annotated video available from the START of a benchmark,
+not after a round trip, so they can give precise feedback ("#4 is wrong because
+...") instead of just a count.
+
+DELIVER BOTH FILES TOGETHER, with explicit ordering instructions:
+  1. GTn_count_clip.mp4   - CLEAN, tripwire only. Count this FIRST, write the
+                            number down.
+  2. QAn_review.mp4       - numbered + ringed crossings. Open ONLY after the
+                            number is written down.
+
+Why the ordering matters: the benchmark's validity rests on the human count
+being independent of the method's output. Benchmark B was a real out-of-sample
+test only because the prediction was sealed in git before the count. Anchoring
+is involuntary - showing the numbers first would quietly destroy that.
+The user self-administers the ordering; do not withhold the file.

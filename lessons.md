@@ -145,3 +145,26 @@ derived from it, and the threshold was chosen after inspecting its data.
 this project needs a **held-out benchmark** the method has never been tuned
 against. Build benchmark #2 from a different window - ideally a different camera
 and a weekday - before quoting a number to anyone.
+
+---
+
+## L-008 — A 13-vehicle benchmark cannot validate a 98% target
+**Found:** 2026-10-02, first out-of-sample result on benchmark B.
+
+Truth 13, prediction 12 -> 92.3% accuracy. Passes stage 1 (85%), misses stage 2
+(92.75%) by 0.45 percentage points.
+
+**The problem is granularity, not the result.** With 13 vehicles one error is
+7.7%, so the only attainable scores near the top are **92.3% (one error) and
+100% (zero errors)** - nothing in between. The benchmark physically cannot
+distinguish stage 2 from stage 3.
+
+To measure 98% meaningfully, one error must be worth less than 2%, which needs
+**N >= 50 vehicles**.
+
+**Consequence for the locked ladder.** The 1-minute unit is right for stage 1 -
+it got the loop running cheaply and has already produced two real numbers. But
+stage 2 and stage 3 cannot be validated at that size. Later rungs need longer
+windows, busier periods, or several benchmarks pooled.
+
+This does not invalidate the ladder; it specifies when to climb it.

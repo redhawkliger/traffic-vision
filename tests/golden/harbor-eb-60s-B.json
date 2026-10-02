@@ -1,19 +1,29 @@
 {
   "benchmark_id": "harbor-eb-60s-B",
-  "status": "HELD_OUT - AWAITING USER COUNT",
+  "status": "RECONCILED - FIRST OUT-OF-SAMPLE RESULT",
   "created": "2026-10-02",
   "purpose": "Out-of-sample validation. harbor-eb-60s was used to FIND and FIX a defect, so it can no longer validate the method (lessons.md L-007). This is a different 60s window the method has never been tuned against.",
   "source": {
     "camera": "SR-90 at Harbor Blvd, CCTV 506, Caltrans D12 (SAME camera as benchmark A)",
     "clip": "_506__Harbor_Blvd_NW_Corner.ts",
-    "window_frames": [3000, 4500],
-    "window_seconds_of_source": [120.0, 180.0],
+    "window_frames": [
+      3000,
+      4500
+    ],
+    "window_seconds_of_source": [
+      120.0,
+      180.0
+    ],
     "recorded": "2026-09-27 Sunday morning"
   },
   "definition": {
     "identical_to": "harbor-eb-60s",
     "what_is_counted": "A vehicle whose body crosses the vertical line x=600 within y=[300,680], travelling LEFT to RIGHT (eastbound approach volume: left-turns AND throughs together).",
-    "tripwire": {"x": 600, "y0": 300, "y1": 680}
+    "tripwire": {
+      "x": 600,
+      "y0": 300,
+      "y1": 680
+    }
   },
   "method_under_test": {
     "frozen": true,
@@ -26,11 +36,31 @@
       "sealed_at": "2026-10-02, BEFORE any human count of this window",
       "detail": "see benchmarks/harbor-eb-60s-B/sealed_prediction.json for per-crossing times and angles"
     },
-    "user": {"value": null, "method": "independent visual count of GT2_count_clip.mp4"},
-    "reconciled": null
+    "user": {
+      "value": 13,
+      "method": "independent visual count of GT2_count_clip.mp4",
+      "provenance": "CONFIRMED - counted after the prediction was sealed in git (commit c688836)"
+    },
+    "reconciled": {
+      "value": 13,
+      "basis": "User count is the reference. Method predicted 12."
+    }
   },
   "caveats": [
     "SAME camera and SAME day as benchmark A - this is a different-window test, not a different-site test. It controls for traffic but not for camera geometry or lighting.",
     "A genuinely independent test needs a DIFFERENT CAMERA (Beach or Brea Blvd are on disk) and ideally a WEEKDAY, where queues and congestion are present."
-  ]
+  ],
+  "result": {
+    "truth": 13,
+    "predicted": 12,
+    "signed_error": -1,
+    "error_pct": -7.7,
+    "accuracy_pct": 92.3,
+    "stage_1_85pct": "PASS",
+    "stage_2_92_75pct": "MISS by 0.45 percentage points",
+    "stage_3_98pct": "FAIL",
+    "significance": "FIRST GENUINELY OUT-OF-SAMPLE NUMBER. The method was frozen and the prediction sealed in git before the human count. No parameter was changed.",
+    "error_type": "Likely one false negative (a missed crossing); to be confirmed by QA2_review.mp4 review."
+  },
+  "sample_size_limitation": "CRITICAL: with 13 vehicles, ONE error = 7.7%. The benchmark therefore cannot resolve stage 2 (92.75%) from stage 3 (98%) - the only reachable scores near the top are 92.3% (one error) and 100% (zero errors), with nothing in between. To measure 98% meaningfully one error must be <2%, requiring N>=50 vehicles. CONSEQUENCE FOR THE LADDER: the 1-minute unit is adequate for stage 1 but CANNOT validate stage 3. Later rungs need longer windows or busier periods."
 }

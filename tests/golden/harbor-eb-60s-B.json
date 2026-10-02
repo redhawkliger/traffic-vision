@@ -1,6 +1,6 @@
 {
   "benchmark_id": "harbor-eb-60s-B",
-  "status": "RECONCILED - FIRST OUT-OF-SAMPLE RESULT",
+  "status": "RECONCILED - now SPENT as a validator (used to find and fix the zone defect)",
   "created": "2026-10-02",
   "purpose": "Out-of-sample validation. harbor-eb-60s was used to FIND and FIX a defect, so it can no longer validate the method (lessons.md L-007). This is a different 60s window the method has never been tuned against.",
   "source": {
@@ -37,13 +37,13 @@
       "detail": "see benchmarks/harbor-eb-60s-B/sealed_prediction.json for per-crossing times and angles"
     },
     "user": {
-      "value": 13,
-      "method": "independent visual count of GT2_count_clip.mp4",
-      "provenance": "CONFIRMED - counted after the prediction was sealed in git (commit c688836)"
+      "value": 14,
+      "count_type": "REVIEWED (revised from a blind 13 after watching QA2_review.mp4)",
+      "provenance": "Blind count was 13. On review with the numbered overlay the user found TWO vehicles their own blind count had also missed, revising to 14.",
+      "note": "REFERENCE VALUE = 14."
     },
     "reconciled": {
-      "value": 13,
-      "basis": "User count is the reference. Method predicted 12."
+      "value": 14
     }
   },
   "caveats": [
@@ -51,16 +51,36 @@
     "A genuinely independent test needs a DIFFERENT CAMERA (Beach or Brea Blvd are on disk) and ideally a WEEKDAY, where queues and congestion are present."
   ],
   "result": {
-    "truth": 13,
-    "predicted": 12,
-    "signed_error": -1,
-    "error_pct": -7.7,
-    "accuracy_pct": 92.3,
-    "stage_1_85pct": "PASS",
-    "stage_2_92_75pct": "MISS by 0.45 percentage points",
-    "stage_3_98pct": "FAIL",
-    "significance": "FIRST GENUINELY OUT-OF-SAMPLE NUMBER. The method was frozen and the prediction sealed in git before the human count. No parameter was changed.",
-    "error_type": "Likely one false negative (a missed crossing); to be confirmed by QA2_review.mp4 review."
+    "truth": 14,
+    "blind_prediction": 12,
+    "blind_error_pct": -14.3,
+    "blind_accuracy_pct": 85.7,
+    "stage_1_85pct": "PASS (just)",
+    "stage_2_92_75pct": "FAIL",
+    "note": "The ORIGINAL out-of-sample figure of 92.3% was computed against the user BLIND count of 13. The reference is now 14, so the honest blind out-of-sample result is 85.7%."
   },
-  "sample_size_limitation": "CRITICAL: with 13 vehicles, ONE error = 7.7%. The benchmark therefore cannot resolve stage 2 (92.75%) from stage 3 (98%) - the only reachable scores near the top are 92.3% (one error) and 100% (zero errors), with nothing in between. To measure 98% meaningfully one error must be <2%, requiring N>=50 vehicles. CONSEQUENCE FOR THE LADDER: the 1-minute unit is adequate for stage 1 but CANNOT validate stage 3. Later rungs need longer windows or busier periods."
+  "sample_size_limitation": "CRITICAL: with 13 vehicles, ONE error = 7.7%. The benchmark therefore cannot resolve stage 2 (92.75%) from stage 3 (98%) - the only reachable scores near the top are 92.3% (one error) and 100% (zero errors), with nothing in between. To measure 98% meaningfully one error must be <2%, requiring N>=50 vehicles. CONSEQUENCE FOR THE LADDER: the 1-minute unit is adequate for stage 1 but CANNOT validate stage 3. Later rungs need longer windows or busier periods.",
+  "error_analysis": {
+    "performed": "2026-10-02, user reviewed QA2_review.mp4",
+    "user_words": "\"when you counted seven, there is a car which goes under it, which got missed... at 00:56 a dark grey sedan is missed and the next truck is counted. so its total of 14\"",
+    "miss_1": {
+      "t": "~56s",
+      "vehicle": "dark grey sedan",
+      "cause": "ZONE DEFINITION - crossed at y=689, outside the hand-drawn band y=[300,680]. The tripwire stopped mid-roadway.",
+      "fixable": true
+    },
+    "miss_2": {
+      "t": "~54s",
+      "vehicle": "dark blue car below the white SUV",
+      "cause": "GENUINE DETECTION MISS - dark vehicle truncated at the frame bottom, partly behind the white SUV. No detection at that frame.",
+      "fixable": "partially - camera FOV limit"
+    },
+    "fix_applied": "Extend the tripwire to span the full roadway (y=300-720). Principled: the line visibly terminated mid-road.",
+    "after_fix": {
+      "benchmark_B": 13,
+      "benchmark_A": 20,
+      "regression_check": "A unchanged at 20 - the fix does not trade one benchmark against the other."
+    },
+    "adr_prediction_wrong": "ADR-0001 predicted occlusion would dominate the error budget once fragmentation was removed. It did not. The dominant error was ZONE DEFINITION - a hand-drawn tripwire that did not span the roadway. Only one of two errors was occlusion-adjacent."
+  }
 }

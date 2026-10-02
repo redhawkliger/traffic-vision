@@ -168,3 +168,49 @@ stage 2 and stage 3 cannot be validated at that size. Later rungs need longer
 windows, busier periods, or several benchmarks pooled.
 
 This does not invalidate the ladder; it specifies when to climb it.
+
+---
+
+## L-009 — The human blind count was also wrong
+**Found:** 2026-10-02, benchmark B review.
+
+The user's blind count was **13**. Reviewing the same clip with the numbered
+overlay, they found two vehicles *their own blind count had missed* and revised
+to **14**.
+
+**This matters more than the method's error.** Ground truth from a single blind
+human count is not exact. Benchmark A rests on exactly that - one blind count of
+20, never reviewed. It may be low by the same mechanism.
+
+**Rule.** Every benchmark gets a review pass with the overlay, not just a blind
+count. The blind count establishes independence; the review pass establishes
+accuracy. Record both values and which is the reference.
+
+**Consequence.** It also vindicates the user's instinct to see the numbering
+during counting - the review found errors a blind count could not.
+
+---
+
+## L-010 — The dominant error was zone definition, not occlusion
+**Found:** same review. **ADR-0001 predicted wrong.**
+
+ADR-0001 stated: *"Option C does not fix occlusion on congested multi-lane
+approaches... it should be expected to dominate the error budget once
+fragmentation is removed."*
+
+It did not. Of the two misses:
+- one crossed at **y=689**, outside the hand-drawn band `y=[300,680]` - the
+  tripwire simply **stopped mid-roadway**;
+- one was a genuine detection miss (dark vehicle, truncated at the frame bottom,
+  partly behind another car).
+
+So the leading error was a **hand-placed zone boundary**, not a hard CV problem.
+Extending the line to span the road fixed it with **no regression on benchmark A**
+(20 before, 20 after).
+
+**Rule.** ADR-0001 action item 2 - derive the tripwire from the qualified zone
+automatically rather than drawing it by hand - is not a refinement. It was the
+single largest error source measured so far. Promote it.
+
+**Meta-lesson.** A confident prediction in a design document is still a guess
+until measured. Record which predictions were wrong, not just which were right.

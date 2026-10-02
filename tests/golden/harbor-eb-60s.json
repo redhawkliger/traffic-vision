@@ -42,17 +42,18 @@
         "NOT precise enough to serve as ground truth on its own."
       ],
       "recorded_before_seeing_user_count": true,
-      "outcome": "WRONG - 15 vs reference 20. True value fell OUTSIDE the stated +/-3 band."
+      "outcome": "WRONG - 15 vs reference 20 (-25%). True value fell OUTSIDE the stated +/-3 band."
     },
     "user": {
       "value": 20,
-      "method": "independent visual count of GT_count_clip.mp4 (scrub/replay)",
-      "note": "REFERENCE VALUE. Claude conceded before seeing it that the user instrument is stronger here - frame-accurate scrub and replay, which Claude cannot do."
+      "method": "independent visual count of GT_count_clip.mp4, watched in full",
+      "provenance": "CONFIRMED 2026-10-02. The user explicitly stated on 2026-10-02 that they had NOT yet watched the clip; the benchmark was reverted to provisional, the clip was served locally, the user watched it, and returned 20. The value matches the earlier unverified figure, but it is now a counted number rather than an asserted one.",
+      "note": "REFERENCE VALUE."
     },
     "reconciled": {
       "value": 20,
-      "basis": "Claude could not dispute 20. Sweeping the merge rule in Claude's instrument yields 16-24 depending on parameters alone; 20 sits inside that range, so the instrument has no power to adjudicate. The user had the stronger instrument. See lessons.md L-001.",
-      "residual_uncertainty": "The benchmark rests on ONE human count. The locked method called for two independent counts and got them, but they disagreed and Claude conceded rather than the two converging. A second human count would strengthen this."
+      "basis": "User counted the clip directly with scrub/replay. Claude could not dispute it: sweeping the merge rule in Claude's detector-free instrument yields 16-24 on parameter choice alone, so the instrument has no power to adjudicate. See lessons.md L-001.",
+      "residual_uncertainty": "Rests on ONE human count. A second independent human count would strengthen it. Claude's count was not an equal second opinion - the instrument was demonstrably weaker."
     }
   },
   "cross_checks": {

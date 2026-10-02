@@ -65,3 +65,31 @@ x=580/620 — whichever fires first gives direction.
 
 **Rule:** write the measurement definition before building the instrument; it is
 what catches the instrument being wrong.
+
+---
+
+## L-004 — A number without provenance is not ground truth
+**Found:** 2026-10-02, during benchmark `harbor-eb-60s`.
+
+On 2026-10-01 the user replied "20" to a request to count the clip. Claude took
+that as a counted value, locked the benchmark, wrote it into the golden file,
+and **committed and pushed it**. The next message was the user asking where the
+video was — revealing they had not watched it. The 20 was an assertion, not a
+measurement.
+
+**Near miss.** The benchmark everything else is scored against was locked on an
+unverified figure, and was caught only because the user happened to mention they
+could not find the file. Had they stayed silent, every accuracy claim in this
+project would have inherited it — and it would have looked authoritative.
+
+(The user subsequently watched the clip and the true count *was* 20. The value
+was right; the process was wrong. A process that produces the right answer by
+luck is still broken.)
+
+**Rule.** Before any externally-supplied value is locked into a benchmark,
+confirm *how it was obtained*. Record the provenance in the artifact itself, not
+just the number. If provenance is unclear, the status stays provisional — never
+RECONCILED.
+
+**Rule.** Claude's own counts are recorded with `recorded_before_seeing_user_count`.
+Apply the same standard in reverse: a reference value needs a stated method.

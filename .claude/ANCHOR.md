@@ -198,6 +198,16 @@ next action:
   step 1 runs on footage we already have.
   Uncommitted in repo: tools/stitch.py, tools/track.py, tools/eval_stitch.py.
 
+## DECISIONS 2026-10-02 (ADR-0002 session)
+- ADR-0002 (classification method) drafted, PARKED. Volumes first, then classification.
+- Targets 85/92.75/98 apply PER CLASS as well, on the SAME benchmarks, later.
+- Dual-rear-wheel rule as truth definition: UNDECIDED (user: often only one wheel
+  visible). Settle from crop evidence when classification starts.
+- NEXT: tripwire placement (L-010/L-011) -> volumes right -> then classification.
+- Honest benchmark B blind figure is 85.7% (12 vs reference 14), not 92.3%. After the
+  zone fix B = 13/14, which is IN-SAMPLE. The counting script is NOT in the repo's
+  tools/ (spike/ only) - the crossing counter must be committed as a real tool.
+
 ## MODEL TIERING (user plan, 2026-10-02)
 User is switching this work to cheaper models where appropriate.
   Sonnet  -> implementing a decided design, running tests, refactoring

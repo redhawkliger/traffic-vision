@@ -214,3 +214,45 @@ single largest error source measured so far. Promote it.
 
 **Meta-lesson.** A confident prediction in a design document is still a guess
 until measured. Record which predictions were wrong, not just which were right.
+
+---
+
+## L-011 — The "detection miss" was a track-birth placement problem
+**Found:** 2026-10-02, chasing the last open error on benchmark B.
+
+The missed dark vehicle at t=54 was recorded as a genuine detection failure in
+L-010. **That was wrong.**
+
+Tested every available model on the exact frame - yolo11n, yolo11s, yolo11m, at
+imgsz 960/1280/1920, conf 0.15 and 0.05. **All eighteen configurations detected
+it.** Detection was never the problem.
+
+The real cause: track **6371** has its first observation at **x=602.4**. The
+tripwire is at **x=600**. ByteTrack did not confirm the track until the vehicle
+was already past the line, and a track born downstream of a tripwire can never
+cross it.
+
+**Fix (principled).** A tripwire must be placed where tracks are MATURE - far
+enough downstream of the track-birth region that every vehicle has an
+established track before reaching it. This is ADR-0001 action item 2 failing in
+its third distinct way: zone boundary too short (L-010), and now zone placed too
+close to track birth.
+
+**Consequence for the hybrid/ensemble idea.** The user proposed combining models
+so one catches what another misses. Sound technique, but **tested and it would
+not have helped here** - every model already found this vehicle. Ensembling
+addresses detection error; our measured errors are not detection errors.
+
+**The ledger so far - five defects, zero caused by model capability:**
+
+| Defect | Category |
+|---|---|
+| Counting track IDs | architecture |
+| Window filter applied to track start | logic bug |
+| Direction from overall displacement | logic bug |
+| Tripwire stopped mid-roadway | geometry |
+| Track born past the tripwire | geometry/placement |
+
+**Rule.** Before reaching for a bigger or additional model, verify the failure is
+actually a detection failure. Run the candidate models on the specific frame.
+Three of five defects here would have been invisible to any model change.

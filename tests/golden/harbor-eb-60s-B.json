@@ -72,8 +72,10 @@
     "miss_2": {
       "t": "~54s",
       "vehicle": "dark blue car below the white SUV",
-      "cause": "GENUINE DETECTION MISS - dark vehicle truncated at the frame bottom, partly behind the white SUV. No detection at that frame.",
-      "fixable": "partially - camera FOV limit"
+      "cause": "NOT a detection miss (L-010 was wrong). All 18 model configurations tested - yolo11n/s/m at imgsz 960/1280/1920, conf 0.15/0.05 - DETECTED it. Track 6371 was first observed at x=602.4, past the x=600 tripwire. A track born downstream of the line can never cross it.",
+      "category": "geometry/placement",
+      "fixable": true,
+      "fix": "Place the tripwire where tracks are mature, downstream of the track-birth region."
     },
     "fix_applied": "Extend the tripwire to span the full roadway (y=300-720). Principled: the line visibly terminated mid-road.",
     "after_fix": {

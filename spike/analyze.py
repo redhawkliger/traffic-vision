@@ -2,7 +2,7 @@
 import cv2, json, math, collections
 import numpy as np
 
-D = json.load(open('/Users/Ak47/Desktop/spike_cv/tracks.json'))
+D = json.load(open('/Users/Ak47/Desktop/traffic-vision/data/tracks.json'))
 recs = D['records']; W, H, FPS = D['w'], D['h'], D['fps']
 print(f"frames={D['n_frames']} fps={FPS} dets={len(recs)}")
 
@@ -41,7 +41,7 @@ print(f"\ndirection of good tracks: dy<0 (receding/up-image)={up}   dy>0 (approa
 print("class mix of good tracks:", collections.Counter(v['cls'] for v in good.values()).most_common())
 
 # draw trajectories over the reference frame
-base = cv2.imread('/Users/Ak47/Desktop/spike_cv/frame_plain.jpg')
+base = cv2.imread('/Users/Ak47/Desktop/traffic-vision/data/frame_plain.jpg')
 canvas = (base * 0.35).astype('uint8')
 for tid, v in good.items():
     pts = np.array([[r['cx'], r['cy']] for r in tracks[tid]], np.int32)
@@ -55,5 +55,5 @@ for x in range(0, W, 100):
 for y in range(0, H, 100):
     cv2.line(canvas, (0, y), (W, y), (60, 60, 60), 1)
     cv2.putText(canvas, str(y), (3, y - 4), 0, 0.45, (150, 150, 150), 1)
-cv2.imwrite('/Users/Ak47/Desktop/spike_cv/trajectories.jpg', canvas)
+cv2.imwrite('/Users/Ak47/Desktop/traffic-vision/data/trajectories.jpg', canvas)
 print("\nwrote trajectories.jpg  (amber=receding, blue=approaching, green=start, red=end)")

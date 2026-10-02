@@ -69,13 +69,13 @@ def run(path,label,nframes,dump_prefix=None):
     return out
 
 if __name__=='__main__':
-    cams=[("Beach Blvd (500)","/Users/Ak47/Desktop/spike_cv/corridor/_500__Beach_Blvd_NW_Corner.ts"),
-          ("Harbor Blvd (506)","/Users/Ak47/Desktop/spike_cv/corridor/_506__Harbor_Blvd_NW_Corner.ts"),
-          ("Brea Blvd (510)","/Users/Ak47/Desktop/spike_cv/corridor/_510__Brea_Blvd_NW_Corner.ts")]
+    cams=[("Beach Blvd (500)","/Users/Ak47/Desktop/traffic-vision/data/clips/_500__Beach_Blvd_NW_Corner.ts"),
+          ("Harbor Blvd (506)","/Users/Ak47/Desktop/traffic-vision/data/clips/_506__Harbor_Blvd_NW_Corner.ts"),
+          ("Brea Blvd (510)","/Users/Ak47/Desktop/traffic-vision/data/clips/_510__Brea_Blvd_NW_Corner.ts")]
     res={}
     for name,path in cams:
-        res[name]=run(path,name,90,dump_prefix=f"/Users/Ak47/Desktop/spike_cv/recall/{name.split()[0]}")
-    json.dump(res,open('/Users/Ak47/Desktop/spike_cv/recall/recall.json','w'),indent=1)
+        res[name]=run(path,name,90,dump_prefix=f"/Users/Ak47/Desktop/traffic-vision/data/recall/{name.split()[0]}")
+    json.dump(res,open('/Users/Ak47/Desktop/traffic-vision/data/recall/recall.json','w'),indent=1)
     print("\n\n===== CROSS-CAMERA COMPARISON (recall by size bucket) =====")
     keys=[k for k in ['0-40','40-60','60-80','80-120','120-200','200-+','ALL']]
     print(f"{'bucket':>10} " + " ".join(f"{n.split()[0]:>12}" for n in res))

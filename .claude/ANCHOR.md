@@ -235,3 +235,27 @@ Reviews catch error MODES better (the user can say "#4 is wrong because..."),
 which is more useful for fixing the method. Blind tests are the only thing that
 produces a defensible accuracy figure. If a number ever needs to leave this
 project, re-run a blind benchmark for it.
+
+## REPO IS NOW SELF-CONTAINED (2026-10-02)
+All traffic-vision assets moved OUT of ~/Desktop/demandiq. Nothing here depends
+on that repo any more.
+
+  ~/Desktop/traffic-vision/
+    .venv-cv/          CV stack (~1.2 GB) - was demandiq/backend/.venv-cv
+    data/clips/        the three SR-90 source clips (Beach, Harbor, Brea)
+    data/tracks/       harbor_tracks_lowthresh.json (the tracked data)
+    models/            yolo11n/s/m weights
+    benchmarks/        per-benchmark counting clips + QA videos
+    tests/golden/      the benchmarks AS DATA (committed)
+    tools/ docs/ spike/ lessons.md README.md
+
+MEMORY ALSO MOVED. Claude memory is path-keyed, so traffic-vision memory now
+lives under the traffic-vision project path, not demandiq's. Shared entries
+(user role, working-style feedback, the Intel-Mac torch ceiling) were COPIED to
+both; CV-specific entries were MOVED. demandiq's index carries a pointer back.
+
+GITIGNORED and therefore DISK-ONLY (not recoverable from GitHub):
+  data/  models/  benchmarks/  .venv-cv/
+Video is excluded deliberately - size, and the Caltrans commercial terms are
+unresolved. The venv and models are reinstallable; the CLIPS AND BENCHMARK
+VIDEOS ARE NOT. Back those up separately if they matter.

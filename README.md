@@ -10,6 +10,34 @@ torch/opencv and has no business near DemandIQ's lean production image.
 > **Status: research.** Nothing here is a product yet. The `spike/` directory is
 > throwaway code kept only for reference — see the warning in `spike/README.md`.
 
+## Setup
+
+```bash
+python3.12 -m venv .venv-cv              # Intel macOS: torch ceiling is 2.2.2
+./.venv-cv/bin/pip install -r requirements.txt
+```
+
+**Read first when resuming:** `.claude/ANCHOR.md` (live state and locked
+decisions) and `lessons.md` (11 recorded mistakes, several easy to repeat).
+
+### Layout
+
+| Path | Contents | In git? |
+|---|---|---|
+| `tools/` | reusable: camera discovery, recorder, tracker, measurement, recall | yes |
+| `tests/golden/` | benchmarks as data — the accuracy yardsticks | yes |
+| `docs/adr/` | architecture decisions | yes |
+| `lessons.md` | recorded mistakes and the rules they produced | yes |
+| `data/clips/` | source video | **no — disk only** |
+| `data/tracks/` | tracked detections | **no — disk only** |
+| `benchmarks/` | counting clips + QA review videos | **no — disk only** |
+| `models/` | YOLO weights (re-downloadable) | no |
+| `.venv-cv/` | CV stack, ~1.2 GB (reinstallable) | no |
+
+Video is gitignored deliberately: size, and the Caltrans commercial terms of use
+are unresolved. **`data/` and `benchmarks/` are not recoverable from GitHub** —
+back them up separately if they matter.
+
 ---
 
 ## The single most important thing on this page

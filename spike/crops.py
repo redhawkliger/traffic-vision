@@ -5,7 +5,7 @@ from ultralytics import YOLO
 SRC=sys.argv[1]; OUT=sys.argv[2]; SKIP=2; IMGSZ=1280
 COCO={0:'ped',1:'bike',2:'car',3:'motorbike',5:'HV',7:'HV'}   # -> user scheme
 os.makedirs(OUT,exist_ok=True)
-m=YOLO('/Users/Ak47/Desktop/spike_cv/yolo11n.pt')
+m=YOLO('/Users/Ak47/Desktop/traffic-vision/data/yolo11n.pt')
 cap=cv2.VideoCapture(SRC)
 best={}
 i=0
@@ -13,7 +13,7 @@ while True:
     ok,fr=cap.read()
     if not ok: break
     if i%SKIP: i+=1; continue
-    r=m.track(fr,persist=True,tracker='/Users/Ak47/Desktop/spike_cv/night_bytetrack.yaml',
+    r=m.track(fr,persist=True,tracker='/Users/Ak47/Desktop/traffic-vision/data/night_bytetrack.yaml',
               imgsz=IMGSZ,classes=list(COCO),conf=0.15,verbose=False)[0]
     b=r.boxes
     if b is not None and b.id is not None:

@@ -9,7 +9,7 @@ every future accuracy figure is measured against this exact 60 seconds.
 |---|---|
 | `GT_count_clip.mp4` | The 60 s to be counted, with the tripwire drawn. **Count this.** |
 | `GT_strip_0.png` / `GT_strip_1.png` | Time-space strips, 0-30 s / 30-60 s. Pixel-domain, no detector. |
-| `source_clip.ts` | The full 311 s original the window was cut from. |
+| source clip | The full 311 s original lives at `data/clips/_506__Harbor_Blvd_NW_Corner.ts` (single copy, shared with benchmark B). |
 
 ## What to count
 

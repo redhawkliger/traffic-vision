@@ -3,8 +3,8 @@ Answers: 'how reliable are Caltrans feeds, really?'"""
 import json, time, urllib.request, csv, os, random
 from concurrent.futures import ThreadPoolExecutor
 UA={'User-Agent':'Mozilla/5.0'}
-PANEL='/Users/Ak47/Desktop/spike_cv/uptime_panel.json'
-CSV='/Users/Ak47/Desktop/spike_cv/uptime_log.csv'
+PANEL='/Users/Ak47/Desktop/traffic-vision/data/uptime_panel.json'
+CSV='/Users/Ak47/Desktop/traffic-vision/data/uptime_log.csv'
 
 def get(u,t=25):
     r=urllib.request.Request(u,headers=UA)

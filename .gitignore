@@ -17,6 +17,12 @@ __pycache__/
 *.png
 !docs/*.png
 
+# Local data: recorded video, track dumps, model weights.
+# Not committed - size, and the Caltrans commercial terms are unresolved.
+data/
+models/
+benchmarks/
+
 # Analysis outputs
 crops_*/
 bench/

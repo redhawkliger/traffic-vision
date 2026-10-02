@@ -1,0 +1,19 @@
+{
+  "benchmark_id": "brea-wb-leg-1min",
+  "status": "SEALED PREDICTION - awaiting owner review count",
+  "created": "2026-10-02",
+  "purpose": "Ladder step 1 on a second camera: one leg, one minute, westbound (left + through), line confirmed by owner on a still frame BEFORE any count. Replaces spent brea-wb-5min (L-012/L-013).",
+  "source": {"camera": "SR-90 at Brea Blvd, CCTV 510", "recorded": "2026-09-27 Sunday", "window_frames": [4500, 6000], "window_seconds_of_source": [180.0, 240.0], "tracked_frames": [4450, 6000], "tracking": "skip=1, imgsz 960, conf 0.15, yolo11n + ByteTrack", "owner_has_seen_this_window": false},
+  "definition": {"what_is_counted": "A vehicle crossing the vertical line x=1000 within y=[250,560], moving westbound (leftward/up-left), local heading within 30 deg of direction [-0.97,-0.17]. Left + through both count.", "config": "configs/brea-wb-leg.json"},
+  "sealed_prediction": {
+    "value": 19,
+    "sweep_range": [18, 19],
+    "rejected": {"band": 3},
+    "maturity": "no NO_MATURE_ZONE verdict; segments y250-405 mature but median travel before the line only 1.1-1.5 own widths and 20-33% immature crossers (borderline); y405-560 had no data.",
+    "known_unreliable": "near_duplicate flags (10 pairs) use the heuristic proven wrong 16/16 on Brea (L-014, not yet fixed) - ignore them.",
+    "detail": "benchmarks/brea-wb-leg-1min/sealed_prediction.json (disk only)",
+    "sealed_at": "2026-10-02, BEFORE any human count"
+  },
+  "counts": {"user": null, "count_type": "reviewed (single video with numbering, per delivery protocol)"},
+  "caveats": ["Same Sunday morning as the other benchmarks; no weekday/congestion.", "Only ~19 vehicles: one error = ~5%, cannot resolve stage 2 vs 3 (L-008).", "Lower half of the line saw no traffic this minute."]
+}

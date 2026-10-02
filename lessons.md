@@ -256,3 +256,40 @@ addresses detection error; our measured errors are not detection errors.
 **Rule.** Before reaching for a bigger or additional model, verify the failure is
 actually a detection failure. Run the candidate models on the specific frame.
 Three of five defects here would have been invisible to any model change.
+
+---
+
+## L-012 — A line placed inside the intersection box cannot isolate a movement
+**Found:** 2026-10-02, owner review of benchmark `brea-wb-5min` (to 1:59).
+`configs/brea-wb.json` (x=640, y 100-450, "right to left") was chosen from track
+statistics without viewing a frame. Three movements overlap there with a leftward
+pixel component; 25 of the sealed 64 counts (39%) were vehicles the owner correctly
+said were not the stream, and the 30 deg knob (58-68) merely sliced one of those
+families. No band can separate them at x=640 (y-ranges overlap). The directional
+test itself is correct (verified synthetically and on real tracks).
+**The sealed warning "true value may sit below 64" pointed the wrong way** - the
+owner's stream was under-counted.
+**Rules.** (1) Place tripwires on an approach/departure LEG, perpendicular to its
+lanes, never inside the box. (2) Before sealing, a human confirms a still frame with
+line + arrow + the movement written in words. (3) A NO_MATURE_ZONE verdict blocks
+sealing; it does not become a footnote.
+
+## L-013 — Frame skip is a counting parameter, not a cost knob
+Tracking every 3rd frame (8.3 fps) made fast near-field vehicles (50-75 px/step,
+IoU 0.24-0.43 between samples) fail ByteTrack's one-chance confirmation. Every
+vehicle the owner named as missed was DETECTED (conf 0.85-0.92) but never tracked
+before the line (same mechanism as L-011, systemic). Skip 1 tracked 30 owner-stream
+vehicles to 1:59 vs 17 sealed. Harbor was spared only because vehicles enter small
+and slow. The re-track figures are IN-SAMPLE evidence, not a result.
+
+## L-014 — Near-duplicate flag was wrong 16/16
+`mark_near_duplicates` compared boxes at each track's own crossing time, so
+platooned vehicles in adjacent lanes tripped it. All 16 flagged pairs were
+concurrently alive tracks. Report-only (no count effect) but it misled the review.
+Fix: require the two tracks never to be alive at the same time.
+
+## Process note (same session)
+Changed four things at once on Brea (new camera, new tool, 5 min, new direction),
+skipped ladder steps 1-2, and sealed blind. The Harbor loop worked because the line
+was seen on video first, one leg, one minute. Return to that loop. brea-wb-5min is
+now SPENT / in-sample.

@@ -24,7 +24,8 @@ VEHICLE_CLASSES = {0: "ped", 1: "bike", 2: "car", 3: "motorbike", 5: "HV", 7: "H
 
 
 def track(path: str, skip: int = 3, imgsz: int = 1280, conf: float = 0.15,
-          model_name: str = "yolo11n.pt", tracker: str | None = None) -> dict:
+          model_name: str = "yolo11n.pt", tracker: str | None = None,
+          start: int = 0, end: int | None = None) -> dict:
     import cv2
     from ultralytics import YOLO
 
@@ -41,6 +42,13 @@ def track(path: str, skip: int = 3, imgsz: int = 1280, conf: float = 0.15,
 
     records, i, started = [], 0, time.time()
     while True:
+        if end is not None and i >= end:
+            break
+        if i < start:  # sequential grab keeps absolute frame indices exact on .ts
+            if not cap.grab():
+                break
+            i += 1
+            continue
         ok, frame = cap.read()
         if not ok:
             break
@@ -84,9 +92,12 @@ def main() -> None:
     ap.add_argument("--conf", type=float, default=0.15)
     ap.add_argument("--model", default="yolo11n.pt")
     ap.add_argument("--tracker", help="e.g. botsort.yaml")
+    ap.add_argument("--start", type=int, default=0, help="first frame to process")
+    ap.add_argument("--end", type=int, default=None, help="stop before this frame")
     args = ap.parse_args()
 
-    data = track(args.video, args.skip, args.imgsz, args.conf, args.model, args.tracker)
+    data = track(args.video, args.skip, args.imgsz, args.conf, args.model, args.tracker,
+                 args.start, args.end)
     with open(args.out, "w") as fh:
         json.dump(data, fh)
     ids = {r["id"] for r in data["records"]}

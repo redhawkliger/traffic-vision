@@ -216,19 +216,22 @@ judgement tasks. Implementation against a written ADR is not.
                     DO NOT tune anything on this window before the user counts;
                     doing so voids it as an out-of-sample test.
 
-## BENCHMARK DELIVERY PROTOCOL (user preference, 2026-10-02)
-User wants the numbered/annotated video available from the START of a benchmark,
-not after a round trip, so they can give precise feedback ("#4 is wrong because
-...") instead of just a count.
+## BENCHMARK DELIVERY PROTOCOL (user decision, 2026-10-02)
+ONE video per benchmark, WITH the numbering/rings visible. Not two files.
+User: "I wouldn't double count. If you find something there, I'll let you know
+you missed it. So one time is enough... I'm living and checking, so that is
+totally fine."
 
-DELIVER BOTH FILES TOGETHER, with explicit ordering instructions:
-  1. GTn_count_clip.mp4   - CLEAN, tripwire only. Count this FIRST, write the
-                            number down.
-  2. QAn_review.mp4       - numbered + ringed crossings. Open ONLY after the
-                            number is written down.
+Claude raised the anchoring concern once; the user overrode it. Decision stands.
 
-Why the ordering matters: the benchmark's validity rests on the human count
-being independent of the method's output. Benchmark B was a real out-of-sample
-test only because the prediction was sealed in git before the count. Anchoring
-is involuntary - showing the numbers first would quietly destroy that.
-The user self-administers the ordering; do not withhold the file.
+CONSEQUENCE TO RECORD ACCURATELY (not to re-argue): a count made while the
+method's output is visible is a REVIEW, not a blind test. Label it as such in
+the golden file - `count_type: "reviewed"` vs `count_type: "blind"`.
+  - benchmark A  : reviewed (count first, then QA review found the false positive)
+  - benchmark B  : BLIND - prediction sealed in git before the count. This is
+                   the project's only true out-of-sample number so far (92.3%).
+  - benchmark C+ : reviewed, per this decision.
+Reviews catch error MODES better (the user can say "#4 is wrong because..."),
+which is more useful for fixing the method. Blind tests are the only thing that
+produces a defensible accuracy figure. If a number ever needs to leave this
+project, re-run a blind benchmark for it.

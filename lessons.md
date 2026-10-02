@@ -93,3 +93,55 @@ RECONCILED.
 
 **Rule.** Claude's own counts are recorded with `recorded_before_seeing_user_count`.
 Apply the same standard in reverse: a reference value needs a stated method.
+
+---
+
+## L-005 — Judge crossing direction from LOCAL motion, not overall track displacement
+**Found:** 2026-10-02, user error-analysis of benchmark `harbor-eb-60s`.
+
+The user reviewed every counted crossing and found exactly one false positive:
+*"count number one is wrong because it is not going from left to right, but it is
+going from up to down. It just crosses the pink line."*
+
+**Root cause.** Direction was tested two weak ways at once: the track's *overall*
+displacement heading, and the sign of dx at the line. A vehicle travelling
+predominantly downward with a slight rightward drift passes both while not being
+an eastbound movement.
+
+**Fix.** A tripwire crossing counts only if the motion *at the crossing* is
+predominantly **perpendicular to the line**. For the vertical tripwire: local
+heading within 30 deg of horizontal.
+
+**Why this is not L-001 again.** The data is bimodal with a wide plateau: the
+false positive sits at 35.6 deg, the 20 genuine crossings at 5.4-18.4 deg, and
+any threshold from 20-30 deg yields exactly 20. Contrast the merge rule, which
+slid continuously 16-24 with no plateau. A discriminator with a natural gap is
+not the same thing as a knob that sets the answer. **Still verify on held-out
+data** - one false positive is one data point.
+
+---
+
+## L-006 — Select tracks by the CROSSING frame, not the track start frame
+**Found:** same session, while building the QA video.
+
+A reported figure of 24 crossings was wrong. Tracks were filtered to those
+*starting* inside the 60 s window, but three of them crossed the line at
+t=63.0s, 108.1s and 109.3s - outside it. True in-window total: 21.
+
+Effect: inflated the error from +5% to +20% and made raw crossing counting look
+far worse than it is. **A window filter must be applied to the EVENT, never to
+the entity that produces it.**
+
+---
+
+## L-007 — A benchmark used to fix a method can no longer validate that method
+**Found:** 2026-10-02, immediately after L-005.
+
+With the perpendicular criterion the count matched ground truth exactly (20/20).
+That figure is **in-sample**: the error was found on this benchmark, the fix was
+derived from it, and the threshold was chosen after inspecting its data.
+
+**Rule.** Report in-sample results as in-sample. Any accuracy claim that leaves
+this project needs a **held-out benchmark** the method has never been tuned
+against. Build benchmark #2 from a different window - ideally a different camera
+and a weekday - before quoting a number to anyone.

@@ -29,7 +29,8 @@
       "vehicles that approach but stop short without crossing",
       "anything outside the y band"
     ],
-    "note": "Defined by pixel geometry rather than by a movement label. The line spans TWO distinct flow bands (y~324-441 and y~519-634) which may be different movements; labelling is deferred to the turning-movement work."
+    "note": "Defined by pixel geometry. The line spans two visible flow bands (y~324-441 and y~519-634); an earlier concern that these might be different movements is RESOLVED - they are both eastbound and are deliberately counted together as one approach.",
+    "movement_scope": "EASTBOUND APPROACH VOLUME. The user counted left-turning AND through vehicles together - every vehicle travelling left to right across the line, regardless of where it subsequently goes. This is an approach volume, matching step 1 of the ladder (volumes, one leg). Clarified by the user 2026-10-02."
   },
   "counts": {
     "claude": {
@@ -73,5 +74,36 @@
   "sanity_signals": {
     "quiet_period": "No events between t=47s and t=60s - consistent with a red phase.",
     "platoon_structure": "Events cluster from t=17s and t=32s onward, consistent with queue discharge after green."
+  },
+  "error_analysis": {
+    "performed": "2026-10-02, user reviewed QA_review.mp4 crossing by crossing",
+    "finding": "Exactly one false positive: crossing #1 at t=2.40s. The user: \"it is not going from left to right, but it is going from up to down. It just crosses the pink line.\" All other 20 confirmed genuine.",
+    "root_cause": "Direction was judged from the track OVERALL displacement plus the sign of dx at the line. A vehicle moving predominantly downward with slight rightward drift satisfies both while not being an eastbound movement.",
+    "fix": "Judge direction from LOCAL motion at the crossing and require it to be predominantly PERPENDICULAR to the tripwire (angle from horizontal <= 30 deg for a vertical line).",
+    "separation": "False positive at 35.6 deg; the 20 genuine crossings span 5.4-18.4 deg. Threshold sweep: 20-30 deg all give exactly 20; 40 deg+ gives 21. Wide plateau, bimodal data - a discriminator, not a tuned knob.",
+    "also_corrected": "An earlier figure of 24 was wrong: it included 3 crossings at t=63.0/108.1/109.3s, outside the 60s window. Tracks were selected by START frame rather than CROSSING frame. In-window total is 21."
+  },
+  "scores": {
+    "IMPORTANT": "These are IN-SAMPLE. The method was corrected using this benchmark, so its score here is optimistic by construction. A held-out benchmark is required for an out-of-sample figure.",
+    "yolo_crossings_raw_in_window": {
+      "count": 21,
+      "error_pct": 5.0,
+      "passes": "stage 1 and 2"
+    },
+    "yolo_crossings_perpendicular_criterion": {
+      "count": 20,
+      "error_pct": 0.0,
+      "passes": "all stages IN-SAMPLE ONLY"
+    },
+    "claude_pixel_instrument": {
+      "count": 15,
+      "error_pct": -25.0,
+      "passes": "none"
+    },
+    "stitched_tracks_adjusted": {
+      "count": 12,
+      "error_pct": -40.0,
+      "passes": "none"
+    }
   }
 }

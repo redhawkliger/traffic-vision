@@ -208,6 +208,21 @@ next action:
   zone fix B = 13/14, which is IN-SAMPLE. The counting script is NOT in the repo's
   tools/ (spike/ only) - the crossing counter must be committed as a real tool.
 
+## SESSION END 2026-10-02 (resume point)
+- STAYING ON BREA (CCTV 510). Weekday recording scheduled: Mon 2026-10-05 07:45 PDT, 15 min
+  -> data/clips/brea510_mon_20261005_0745.ts (task record-brea-weekday-am; runs only if app open).
+- Tracker PINNED (configs/tracker.yaml, TrackTrack 0.25/0.25/0.1, recorded in track headers). L-015.
+  Harbor A/B were scored on a DIFFERENT tracker (ByteTrack ~0.15); regression still 20 / 13, in-sample.
+- Tools committed: crossings.py (any line/direction), review_video.py (no band-reject clutter), track.py --start/--end.
+- Brea benchmarks SPENT: brea-wb-5min (L-012), brea-wb-leg-1min (dev window, owner-reviewed). Unseen Brea footage exhausted (L-016).
+- Westbound leg line confirmed by owner: configs/brea-wb-leg.json (x=1000, y250-560, up-left arrow).
+- ADR-0002 (classification) PARKED. ADR-0003 (zone-gate model, owner's octagon idea) PROPOSED.
+- Camera search: 202 live D12 cams screened; none clearly 4-leg (stills dusk/low-res). Brea ~3 legs + clipped south.
+- Archives: only Bellevue WA dataset (101 h, 5 intersections, no ground truth, licence unclear) is a real option; NOT pursued. Traffic Cam Archive = $250/h, not pursued.
+- NEXT (Monday): daylight check of real frames (Brea, maybe Palm St 507) -> owner confirms gates on a still, one mouth at a time ->
+  pick test minute by a PRE-STATED volume rule (min subjects, from raw detections, before any method output) -> seal -> owner reviews.
+- Process rules learned: owner confirms line on a still BEFORE sealing; NO_MATURE_ZONE blocks sealing; pin tracker; check window power first.
+
 ## MODEL TIERING (user plan, 2026-10-02)
 User is switching this work to cheaper models where appropriate.
   Sonnet  -> implementing a decided design, running tests, refactoring

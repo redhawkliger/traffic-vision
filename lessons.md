@@ -293,3 +293,29 @@ Changed four things at once on Brea (new camera, new tool, 5 min, new direction)
 skipped ladder steps 1-2, and sealed blind. The Harbor loop worked because the line
 was seen on video first, one leg, one minute. Return to that loop. brea-wb-5min is
 now SPENT / in-sample.
+
+---
+
+## L-015 — The tracker was never pinned; Brea and Harbor used different trackers
+**Found:** 2026-10-02, tracker experiments on the Brea dev window.
+Every document said "ByteTrack". The installed ultralytics (8.4.171) default is
+TrackTrack with new_track_thresh 0.7, which cannot start a track from a weak
+detection. The owner's missed motorbike (det conf 0.41-0.53) and the middle truck
+were both lost for this reason. Harbor's stored tracks were made by ByteTrack at
+~0.15 thresholds (re-track reproduced 41/41 ids); the first Brea run used
+TrackTrack defaults, so the "frozen method" claim for Brea was false.
+**Fix.** `configs/tracker.yaml` (TrackTrack, high=new=0.25, low=0.1) is now the
+default in tools/track.py and every output header records the tracker. On the Brea
+dev stretch it recovers both misses once each with nothing else gained/lost
+(ByteTrack 0.15 misses the bike and double-counts the truck). Harbor A=20, B=13
+reproduced (B swaps one crossing: loses the L-010 y=690.9 vehicle, gains one at
+f3228). All IN-SAMPLE. The Harbor benchmarks were scored on a different tracker.
+**Rule.** The tracker, its thresholds and the library version are part of the
+method. Pin and record them before any sealed prediction.
+
+## L-016 — Check a window has enough subjects BEFORE spending it
+Brea source seconds 240-300 had 2 westbound crossings (11 outside the band): zero
+statistical power, and one count was peeked at to learn that. Unseen Brea footage
+is effectively exhausted. Rule: choose benchmark windows by a pre-stated volume rule
+(and a minimum subject count) from independent evidence, before any method output
+is looked at; get new footage when the pool is spent.

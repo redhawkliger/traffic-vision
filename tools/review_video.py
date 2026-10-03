@@ -38,7 +38,9 @@ RING_SECONDS = 1.5
 
 def label_events(events):
     """Assign stable labels. Counted -> number 1..N in the order given (the event list
-    order); rejected -> 'R1'.. in order. Returns list of label dicts."""
+    order); rejected -> 'R1'.. in order. Returns list of label dicts.
+    Band rejects (outside the counting zone) are clutter: kept in the sidecar labels
+    (with reason) but flagged draw=False so the video does not show them."""
     out, nc, nr = [], 0, 0
     for e in events:
         if e["reject_reason"] == "window":   # crossing outside the counting window: not a candidate
@@ -52,6 +54,7 @@ def label_events(events):
         out.append({
             "label": lab, "number": num, "counted": bool(e["counted"]),
             "reject_reason": e["reject_reason"], "track_id": e["track_id"],
+            "draw": e["reject_reason"] != "band",
             "frame": e["frame"], "t": e["t"], "x": e["x_cross"], "y": e["y_cross"],
             "heading_deg": e["heading_deg"], "along_line": e.get("along_line"),
             "bbox_w_at_cross": e.get("bbox_w_at_cross"),
@@ -172,7 +175,7 @@ def render(clip, crossings, cfg, out, label="", count_type="blind", tracks=None,
         draw_line(img, cfg, S)
 
         overlay = None
-        active = [lb for lb in labels if 0 <= f - lb["frame"] < life]
+        active = [lb for lb in labels if lb["draw"] and 0 <= f - lb["frame"] < life]
         for lb in active:
             col = COUNTED_COL if lb["counted"] else REJECT_COL
             age = f - lb["frame"]
@@ -218,6 +221,7 @@ def render(clip, crossings, cfg, out, label="", count_type="blind", tracks=None,
                  "fps": fps, "window_frames": [lo, hi], "codec": codec,
                  "counted_total": sum(1 for lb in labels if lb["counted"]),
                  "rejected_total": sum(1 for lb in labels if not lb["counted"]),
+                 "rejected_not_drawn_band": sum(1 for lb in labels if not lb["draw"]),
                  "counted_drawn": drawn_c, "rejected_drawn": drawn_r,
                  "line": cfg["line"], "direction": cfg["direction"]},
         "labels": [{k: v for k, v in lb.items() if not k.startswith("_")} for lb in labels],
@@ -226,7 +230,7 @@ def render(clip, crossings, cfg, out, label="", count_type="blind", tracks=None,
     with open(base + ".labels.json", "w") as jf:
         json.dump(side, jf, indent=1)
     with open(base + ".labels.csv", "w", newline="") as fh:
-        cols = ["label", "counted", "reject_reason", "track_id", "frame", "t", "x", "y",
+        cols = ["label", "counted", "reject_reason", "draw", "track_id", "frame", "t", "x", "y",
                 "heading_deg", "along_line", "bbox_w_at_cross", "near_duplicate_of"]
         w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
         w.writeheader()
@@ -253,7 +257,8 @@ def main(argv=None):
     side = render(a.clip, cr, cfg, a.out, a.label, a.count_type, a.tracks, a.boxes, a.window)
     m = side["meta"]
     print(f"wrote {a.out}: counted drawn {m['counted_drawn']}/{m['counted_total']}, "
-          f"rejected drawn {m['rejected_drawn']}/{m['rejected_total']}")
+          f"rejected drawn {m['rejected_drawn']}/{m['rejected_total']} "
+          f"({m['rejected_not_drawn_band']} band rejects in sidecar only)")
     return 0
 
 

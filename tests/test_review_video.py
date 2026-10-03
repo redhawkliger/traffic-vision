@@ -79,12 +79,30 @@ class Synthetic(unittest.TestCase):
 
     def test_rejected_shown_with_reason(self):
         rej = [lb for lb in self.side["labels"] if not lb["counted"]]
+        # sidecar keeps ALL rejects with reason (angle + band) ...
         self.assertEqual(len(rej), 2)
-        txt = sorted(R.reject_text(lb) for lb in rej)
-        self.assertTrue(any(t.startswith("rejected: angle ") and t.endswith("deg") for t in txt))
-        self.assertIn("rejected: band", txt)
+        self.assertEqual(sorted(lb["reject_reason"] for lb in rej), ["angle", "band"])
+        # ... but the band reject is not drawn (clutter outside the counting zone)
+        self.assertEqual({lb["reject_reason"]: lb["draw"] for lb in rej},
+                         {"angle": True, "band": False})
+        angle = next(lb for lb in rej if lb["reject_reason"] == "angle")
+        t = R.reject_text(angle)
+        self.assertTrue(t.startswith("rejected: angle ") and t.endswith("deg"))
         self.assertEqual(self.side["meta"]["counted_drawn"], 3)
-        self.assertEqual(self.side["meta"]["rejected_drawn"], 2)
+        self.assertEqual(self.side["meta"]["rejected_drawn"], 1)
+        self.assertEqual(self.side["meta"]["rejected_total"], 2)
+        self.assertEqual(self.side["meta"]["rejected_not_drawn_band"], 1)
+        with open(os.path.splitext(self.out)[0] + ".labels.csv") as fh:
+            self.assertIn("band", fh.read())
+
+    def test_band_reject_not_drawn_in_pixels(self):
+        e = next(e for e in self.res["events"] if e["reject_reason"] == "band")
+        fr = self._frames()
+        f = e["frame"]
+        rad = int(max(14 * H / 720, min(60 * H / 720, 24 * 0.6)))
+        # top of where the ring would be (off the red tripwire row); background is flat grey 60
+        px = fr[f][int(round(e["y_cross"])) - rad, int(round(e["x_cross"]))]
+        self.assertTrue(all(abs(int(v) - 60) < 12 for v in px), px)
 
     def _frames(self):
         cap = cv2.VideoCapture(self.out)

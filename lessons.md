@@ -335,3 +335,32 @@ already reviewed," then re-reported the same two findings from memory.
 A review is not received until it is written into that file in the same action.
 Never infer "outstanding" from a null field without reconciling ANCHOR + lessons;
 when two records disagree, the one naming concrete observations is the real one.
+
+## L-018 — No public operational camera shows a full intersection box, and that is structural
+**Found:** 2026-10-05, statewide then nationwide camera survey.
+The owner asked for a study site where the whole intersection box is in frame,
+perimeter outside the crosswalks. Searched two independent systems:
+  Caltrans statewide : 3,591 cameras, 3,589 stills, 874 within 90 m of an OSM
+                       traffic signal, 475 live full-res frames pulled, 252
+                       non-Interstate, top 90 screened by eye.
+  NYC DOT            : 972 cameras, 970 images, 812 named "<street> @ <street>".
+**ZERO showed four approaches.** Not one, out of 4,561 cameras in two systems
+run by different agencies on opposite coasts.
+**Why.** Operational cameras are mounted on signal poles and mast arms at the
+roadside and look ALONG an approach or corridor, because operations needs queues
+and incidents, not turning movements. A whole-box view needs the camera high
+above the centre of the box. In both systems the HIGH-RESOLUTION cameras are on
+freeways (NYC: 22 of 23 HD cameras are BQE/LIE/Cross-Bronx); intersection
+cameras are 352x240. Resolution and geometry are anti-correlated with what a
+turning-movement study needs.
+**Consequence.** The owner's own plan - mount our own camera and record - is not
+a convenience, it is the only way to get this geometry. The method should be
+developed against the geometry we will MOUNT, not the geometry a DOT happens to
+give. Scanning more states would re-confirm a structural fact, not find an
+exception.
+**Also recorded.** Two filters that worked, for reuse: OSM traffic_signals
+within 90 m identifies surface intersections (validated - Brea/Harbor/Beach land
+at 15/21/24 m, where an image-feature ranker put them at 1142/2226/2449 of 3589);
+white-pixel fraction > 0.55 removes "Temporarily Unavailable" placeholder cards
+(1,028 of 3,589). Ramp meters are tagged highway=traffic_signals, so the signal
+test alone admits freeway on-ramp cameras - exclude Interstates or motorway ways.

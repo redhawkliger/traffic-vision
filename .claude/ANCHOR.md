@@ -284,3 +284,34 @@ GITIGNORED and therefore DISK-ONLY (not recoverable from GitHub):
 Video is excluded deliberately - size, and the Caltrans commercial terms are
 unresolved. The venv and models are reinstallable; the CLIPS AND BENCHMARK
 VIDEOS ARE NOT. Back those up separately if they matter.
+
+## SESSION 2026-10-05 (resume point)
+- CAMERA MOVED between the Sunday clips and Monday: +290 px horizontal, +37 px vertical
+  (phase correlation). configs/brea-wb-leg.json does NOT transfer - its x=1000 maps off-frame.
+  View is stable to +-0.3 px WITHIN the Monday clip. ADR-0001 named this risk; it has now happened.
+- Monday clip: data/clips/brea510_mon_20261005_0745.ts. Scheduled 07:45, ACTUALLY captured
+  09:04-09:19 (task only fires with the app open). 910 s, 1280x720, weekday, not peak.
+  Owner ruled peak is NOT required: the goal is the counting method, not the dataset.
+- NEW TOOLING THIS SESSION (scratch_diag/, untracked): motion_map.py (15-min motion + flow
+  direction field), size_map.py (pixels-per-vehicle = ADR-0001 step 2 QUALIFY, never run before),
+  window_pick.py (pre-stated window rule). These replaced eyeballing a line.
+- LINE SET FROM EVIDENCE: configs/brea-mon-wb.json, x=400 y130-480, direction [-1.0,-0.014],
+  tol 30. Owner chose candidate A and flagged that a long line also catches cross traffic (L-005);
+  bottom trimmed on that basis.
+  WITHDRAWN CLAIM: "y510-610 is opposing lanes" was an artifact - flow coherence there is 0.04,
+  i.e. mean flow is noise. Optical flow cannot read direction below y~450 (large fast near-field
+  vehicles). Open question: is y450-480 clean? Settle with tracks, not flow.
+  NEARLY TRIMMED WRONGLY: a 30 s probe showed no crossings below y=305; the full 15 min shows
+  y340-460 carries 40/136 on-line detections. Short sample != absence (L-016 shape). Line kept.
+- BENCHMARK brea-mon-wb-2min SEALED (commit fdc1e3e): 83, sweep 75-86, frames 1000-4000
+  (clip t 40-160 s). Window by pre-stated detection-density rule; 120 s length justified by a
+  rate probe at t 600-630 s (26 crossings/min) that will never be a benchmark.
+  AWAITING OWNER COUNT. Do not tune anything on this window.
+- MATURITY IS THE BEST SO FAR: 3.8-6.2 vehicle-widths travelled before the line, 0-4% immature,
+  vs 1.1-1.5 widths and 20-33% on the Sunday line. L-011 designed out, not patched.
+- L-014 near-duplicate heuristic STILL UNFIXED (verified by reading the code). Its 36 flags on
+  this window are noise - ignore. Fix: require the two tracks never to be alive simultaneously.
+- L-017 logged: a benchmark's state lived in the golden file AND ANCHOR and they disagreed;
+  the owner was asked to re-review finished work. Golden file is now the single source of truth.
+  brea-wb-leg-1min corrected: owner review recorded, reference 21, SPENT/in-sample.
+- STILL UNSIGNED: ADR-0001 (count crossings not tracks), ADR-0003 (zone-gate). ADR-0002 parked.

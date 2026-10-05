@@ -319,3 +319,19 @@ statistical power, and one count was peeked at to learn that. Unseen Brea footag
 is effectively exhausted. Rule: choose benchmark windows by a pre-stated volume rule
 (and a minimum subject count) from independent evidence, before any method output
 is looked at; get new footage when the pool is spent.
+
+## L-017 — A benchmark's state lived in two files and they disagreed
+**Found:** 2026-10-05, owner asked "where are we" and was sent to re-review a
+benchmark they had already reviewed three days earlier.
+`tests/golden/brea-wb-leg-1min.json` said `status: "SEALED - awaiting owner review"`
+with `counts.user: null` and `owner_has_seen_this_window: false`. But ANCHOR.md
+said "brea-wb-leg-1min (dev window, owner-reviewed)" and L-015 already recorded
+the owner's two findings *by name* — the motorbike and the middle vehicle — and
+the tracker pin that fixed them. Claude read the JSON, trusted it, and asked the
+owner to redo finished work. The owner caught it: "it's an old video which I
+already reviewed," then re-reported the same two findings from memory.
+**Cost.** The owner's review time, and nearly a second in-sample benchmark.
+**Rule.** The golden file is the ONLY source of truth for a benchmark's state.
+A review is not received until it is written into that file in the same action.
+Never infer "outstanding" from a null field without reconciling ANCHOR + lessons;
+when two records disagree, the one naming concrete observations is the real one.

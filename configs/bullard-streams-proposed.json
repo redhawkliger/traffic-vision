@@ -1,0 +1,46 @@
+[
+ {
+  "stream": 1,
+  "direction": [
+   -0.919,
+   0.394
+  ],
+  "mean_deg": 156.8,
+  "heading_tol_deg": 16.1,
+  "measured_spread_p95": 11.5,
+  "line": [
+   [
+    659,
+    1090
+   ],
+   [
+    481,
+    676
+   ]
+  ],
+  "n_cells": 620,
+  "sep_deg": 158.1
+ },
+ {
+  "stream": 2,
+  "direction": [
+   0.706,
+   -0.708
+  ],
+  "mean_deg": -45.1,
+  "heading_tol_deg": 29.4,
+  "measured_spread_p95": 21.0,
+  "line": [
+   [
+    1451,
+    624
+   ],
+   [
+    1792,
+    963
+   ]
+  ],
+  "n_cells": 345,
+  "sep_deg": 158.1
+ }
+]

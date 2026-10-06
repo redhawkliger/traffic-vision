@@ -390,3 +390,31 @@ absence - decide extent on full-clip evidence.
 median of 33 px (p90 61 px). An IoU-based detector/tracker comparison therefore
 reports false "misses"; match on centre distance relative to box size instead.
 That mistake made a correctly-tracked vehicle look like a 19-frame miss.
+
+## L-020 — Stop hand-rolling road detection; a driving-scene model already does it
+**Found:** 2026-10-05, owner asked "do I need to teach computer vision how to read
+a roadway? Is there no model for this? Waymo drives cars - is that data not shared?"
+They were right. Two attempts at colour-threshold road detection failed: the first
+assumed black asphalt (this carriageway is light concrete) and matched buildings;
+the second, tuned to measured road pixels, matched 70% of the frame because the
+barrier, shoulder and sidewalk are also grey and unsaturated. Colour cannot
+separate "drivable carriageway" from "concrete next to the carriageway".
+**What works.** SegFormer-b0 fine-tuned on Cityscapes (`nvidia/segformer-b0-
+finetuned-cityscapes-1024-1024`, via transformers). Cityscapes labels are built
+for driving scenes: class 0 is `road`. One CPU inference on the vehicle-free
+median background segmented the carriageway cleanly - barrier out, shoulder out,
+dirt out, and the opposing carriageway beyond the barrier correctly excluded.
+Runs ONCE per camera, so CPU-only is irrelevant. tools/roadseg.py.
+**Rule.** Geometry questions about the scene (where is the road, the sidewalk, a
+lane) are a solved model class. Use the pretrained model; save hand-written rules
+for the measurement itself, where every threshold has to be defensible.
+**Second finding, from the same investigation.** At SR-41 Bullard the line
+position trades road coverage against track maturity, and the camera cannot give
+both at once:
+      pct along travel   30    50    65    75    85    90
+      road spanned (px) 452   400   370   292   246   218
+      maturity          fail  fail  fail  fail  PASS  PASS
+Moving to the 85th percentile to clear NO_MATURE_ZONE pushed the line to the frame
+edge, where most of the carriageway has already left view - which is exactly the
+missing left lane the owner spotted. A single line cannot serve every lane here.
+The fix is PER-LANE lines, each placed where that lane's own tracks are mature.

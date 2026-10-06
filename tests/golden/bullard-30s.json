@@ -26,26 +26,27 @@
     "config": "configs/bullard-s1-full.json",
     "line": [
       [
-        804,
-        970
+        848,
+        1073
       ],
       [
-        688,
-        700
+        696,
+        718
       ]
-    ]
+    ],
+    "line_provenance": "the exact green line shown to and approved by the owner (full segmented carriageway, untrimmed)"
   },
   "sealed_prediction": {
     "value": 15,
     "sweep_range": [
-      10,
+      12,
       15
     ],
-    "note": "tolerance-insensitive (15 across 20-35 deg); the range comes from band shifts of +-40px, which cut real vehicles because the line now sits exactly at the traffic edge",
+    "note": "tolerance-insensitive: 15 at 20/25/30/35 deg. The 12-15 range comes only from shrinking BOTH ends by 40px, which cuts real vehicles. With the approved untrimmed line, shifting the start alone no longer changes the count at all - the bottom of the line is shoulder, so it is inert.",
     "sealed_at": "2026-10-05 BEFORE any human count and before the review video existed"
   },
   "maturity": {
-    "verdict": "all populated segments mature; one empty segment (49-98)"
+    "verdict": "all populated segments mature; the bottom two segments are shoulder (no traffic)"
   },
   "counts": {
     "user": null,

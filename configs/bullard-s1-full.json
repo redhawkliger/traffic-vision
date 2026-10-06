@@ -2,12 +2,12 @@
  "site": "SR-41 at Bullard Ave, Caltrans D6 CCTV 41_Bullard - stream 1",
  "line": [
   [
-   804,
-   970
+   848,
+   1073
   ],
   [
-   688,
-   700
+   696,
+   718
   ]
  ],
  "direction": [
@@ -23,7 +23,7 @@
    89
   ],
   "per_vehicle_max_dev_deg": 26.1,
-  "extent_from": "SegFormer/Cityscapes road segmentation gave the carriageway; the ends were then set from detection density over the FULL 609s clip - along 0-120 of the segmented run is shoulder (1 detection in 10 min) and traffic continues slightly past the mask boundary, so the line runs 112-406.",
+  "extent_from": "the full contiguous carriageway run from SegFormer/Cityscapes road segmentation, AS SHOWN TO AND APPROVED BY THE OWNER. An earlier trim removed the bottom 112px as shoulder on detection-density grounds; the owner asked for the line they were shown. Including the shoulder costs nothing - no vehicles travel there, so it cannot create false counts - while trimming it risks cutting a lane, which is the failure mode that started this.",
   "position_from": "50th percentile along travel - the maturity/coverage trade-off measured at this camera (452px of road at the 30th pct down to 218px at the 90th). Chosen for COVERAGE; per-segment maturity is reported so a weak lane is visible rather than silently dropped."
  },
  "known_limitation": "At the 85th percentile the outermost segment carries NO crossings - those far lanes have left the frame. This line therefore counts stream 1's NEAR lanes only. The far lanes are NOT countable at this camera: at positions where they are still in frame their tracks are born past the line, and at positions where tracks are mature they are out of frame. State this with any number.",

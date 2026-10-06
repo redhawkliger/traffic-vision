@@ -1,0 +1,54 @@
+{
+  "benchmark_id": "bullard-30s",
+  "status": "SEALED - awaiting owner count",
+  "created": "2026-10-05",
+  "source": {
+    "camera": "SR-41 at Bullard Ave, D6 CCTV 41_Bullard",
+    "clip": "data/clips/sr41_bullard_mon_20261005.ts",
+    "window_frames": [
+      300,
+      1200
+    ],
+    "window_seconds_of_clip": [
+      10.0,
+      40.0
+    ],
+    "tracked_frames": [
+      250,
+      1200
+    ],
+    "fps": 30,
+    "resolution": "1920x1080",
+    "tracking": "skip=1 imgsz1920 conf0.15 yolo11n + pinned tracker"
+  },
+  "definition": {
+    "what_is_counted": "vehicle crossing the stream-1 line, local motion within 40 deg of +157 deg (SB 41 mainline)",
+    "config": "configs/bullard-s1-full.json",
+    "line": [
+      [
+        804,
+        970
+      ],
+      [
+        688,
+        700
+      ]
+    ]
+  },
+  "sealed_prediction": {
+    "value": 15,
+    "sweep_range": [
+      10,
+      15
+    ],
+    "note": "tolerance-insensitive (15 across 20-35 deg); the range comes from band shifts of +-40px, which cut real vehicles because the line now sits exactly at the traffic edge",
+    "sealed_at": "2026-10-05 BEFORE any human count and before the review video existed"
+  },
+  "maturity": {
+    "verdict": "all populated segments mature; one empty segment (49-98)"
+  },
+  "counts": {
+    "user": null,
+    "count_type": "reviewed (numbered video)"
+  }
+}

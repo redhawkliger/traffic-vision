@@ -2,12 +2,12 @@
  "site": "SR-41 at Bullard Ave, Caltrans D6 CCTV 41_Bullard - stream 1",
  "line": [
   [
-   648,
-   1064
+   336,
+   1066
   ],
   [
-   481,
-   676
+   205,
+   759
   ]
  ],
  "direction": [
@@ -15,7 +15,7 @@
   0.394
  ],
  "heading_tol_deg": 40.0,
- "note": "DERIVED from 18,288 frames of motion, not drawn. Mean travel 156.8 deg; measured heading spread p95 = 11.5 deg; tolerance = p95*1.4 capped inside half the 158.1 deg separation between the two streams. Line at the 65th percentile along travel so vehicles are mature at the crossing. EXTENT TRIMMED on full-clip evidence: seg 1 (along 0-56) had 0 detections in 10 min; trimmed to 28 to leave margin. TOLERANCE CORRECTED 16.1/29.4 -> 40: flow-derived spread understated per-vehicle spread ~2x (stream 1 flow p95 11.5 vs per-vehicle p95 24.1), and +-16 was rejecting 4 of 23 real vehicles. 40 sits mid-PLATEAU: every tolerance from 30 to 89 deg gives an identical count, so this knob is not a free parameter here. Streams are 158 deg apart, so 40 cannot admit the opposing stream.",
+ "note": "DERIVED from 18,288 frames of motion, not drawn. Mean travel 156.8 deg; measured heading spread p95 = 11.5 deg; tolerance = p95*1.4 capped inside half the 158.1 deg separation between the two streams. Line at the 65th percentile along travel so vehicles are mature at the crossing. EXTENT TRIMMED on full-clip evidence: seg 1 (along 0-56) had 0 detections in 10 min; trimmed to 28 to leave margin. TOLERANCE CORRECTED 16.1/29.4 -> 40: flow-derived spread understated per-vehicle spread ~2x (stream 1 flow p95 11.5 vs per-vehicle p95 24.1), and +-16 was rejecting 4 of 23 real vehicles. 40 sits mid-PLATEAU: every tolerance from 30 to 89 deg gives an identical count, so this knob is not a free parameter here. Streams are 158 deg apart, so 40 cannot admit the opposing stream. LINE MOVED 65th -> 85th percentile along travel. At the 65th the far quarter returned NO_MATURE_ZONE (26 tracks born PAST the line on the benchmark window; 5 on the verification segment), i.e. vehicles in the far lanes are not tracked until after they cross - the L-011 defect. A position sweep on the VERIFICATION segment showed 55/65/75 all fail and 85 is the first with zero NO_MATURE_ZONE segments.",
  "derivation": {
   "tolerance_from": "per-vehicle crossing headings on the verification segment (in-sample)",
   "plateau_deg": [
@@ -23,6 +23,8 @@
    89
   ],
   "per_vehicle_max_dev_deg": 26.1,
-  "extent_from": "detection density along the line over the full 609.6 s clip"
- }
+  "extent_from": "detection density along the line over the full 609.6 s clip",
+  "position_from": "maturity sweep on the verification segment (55/65/75/85/90)"
+ },
+ "known_limitation": "At the 85th percentile the outermost segment carries NO crossings - those far lanes have left the frame. This line therefore counts stream 1's NEAR lanes only. The far lanes are NOT countable at this camera: at positions where they are still in frame their tracks are born past the line, and at positions where tracks are mature they are out of frame. State this with any number."
 }

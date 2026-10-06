@@ -1,6 +1,6 @@
 {
   "benchmark_id": "bullard-30s",
-  "status": "SEALED - awaiting owner count",
+  "status": "RECONCILED - owner confirmed the count on 2026-10-05",
   "created": "2026-10-05",
   "source": {
     "camera": "SR-41 at Bullard Ave, D6 CCTV 41_Bullard",
@@ -49,7 +49,22 @@
     "verdict": "all populated segments mature; the bottom two segments are shoulder (no traffic)"
   },
   "counts": {
-    "user": null,
-    "count_type": "reviewed (numbered video)"
-  }
+    "user": 15,
+    "count_type": "reviewed (numbered video, per delivery protocol)",
+    "provenance": "owner watched the numbered review video and confirmed the count with no misses and no false counts named",
+    "agreement": "15 predicted / 15 confirmed"
+  },
+  "result": {
+    "predicted": 15,
+    "reference": 15,
+    "signed_error": 0,
+    "abs_pct_error": 0.0,
+    "ladder": "clears stage 1 (85%). CANNOT resolve stage 2 (92.75%) vs stage 3 (98%) - with N=15 one error is 6.7% (L-008 wants N>=50)."
+  },
+  "honest_scope": [
+    "N=15. A perfect score here is consistent with anything from ~90% upward; it does not demonstrate 98%.",
+    "REVIEWED, not blind - the numbers were visible while the owner watched (owner delivery protocol).",
+    "Free-flow freeway, one direction, near lanes. No queues, no turns, no congestion - the easy case, chosen deliberately.",
+    "The line extent was set from detection density over the FULL clip, which includes these frames. The config was otherwise derived on the separate verification segment, but this is a weak in-sample dependency and is recorded as such."
+  ]
 }

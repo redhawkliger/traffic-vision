@@ -418,3 +418,25 @@ Moving to the 85th percentile to clear NO_MATURE_ZONE pushed the line to the fra
 edge, where most of the carriageway has already left view - which is exactly the
 missing left lane the owner spotted. A single line cannot serve every lane here.
 The fix is PER-LANE lines, each placed where that lane's own tracks are mature.
+
+## L-021 — First correct count, and exactly what it does and does not show
+**2026-10-05.** bullard-30s: predicted 15, owner confirmed 15. No misses, no
+false counts. The first time in this project that a count has been right.
+**What produced it.** Not a better model - the same yolo11n throughout. What
+changed is that every parameter stopped being chosen by hand:
+  direction  <- motion-weighted mean of 18,288 frames of optical flow
+  tolerance  <- per-vehicle crossing headings, not flow spread (L-019)
+  extent     <- SegFormer/Cityscapes road segmentation (L-020), owner-approved
+  position   <- maturity sweep, rejecting any position with NO_MATURE_ZONE
+And the count is now insensitive to the knobs: 15 at 20/25/30/35 deg tolerance.
+**What it does NOT show.** N=15, so one error would be 6.7%: this clears stage 1
+(85%) and cannot distinguish stage 2 (92.75%) from stage 3 (98%). L-008 still
+stands. It was REVIEWED, not blind. It is free-flow freeway in one direction on
+the near lanes - no queues, no turns, no occlusion - deliberately the easy case.
+And the line extent came from full-clip detection density, which includes these
+frames, so there is a weak in-sample dependency.
+**The lesson to carry.** Five defects in this project were traced to a number a
+human picked (merge gap, conf threshold, band edge, heading tolerance, track-birth
+threshold). Zero were the model's capability. The fix was never a better model;
+it was deriving the number from a measurement and then checking the answer does
+not move when the number does.

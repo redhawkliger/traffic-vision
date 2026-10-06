@@ -364,3 +364,29 @@ at 15/21/24 m, where an image-feature ranker put them at 1142/2226/2449 of 3589)
 white-pixel fraction > 0.55 removes "Temporarily Unavailable" placeholder cards
 (1,028 of 3,589). Ramp meters are tagged highway=traffic_signals, so the signal
 test alone admits freeway on-ramp cameras - exclude Interstates or motorway ways.
+
+## L-019 — Optical-flow spread understates per-vehicle spread by ~2x
+**Found:** 2026-10-05, verifying the derived config at SR-41 Bullard BEFORE sealing.
+Tolerance was derived from the heading spread of the optical-flow field: stream 1
+p95 = 11.5 deg -> tol +-16. Checking it against the headings of actual TRACKED
+vehicles at the crossing gave p95 = 24.1 deg, max 26.1. The derived +-16 was
+rejecting **4 of 23 real vehicles (17%)**.
+**Why.** Flow is averaged over a cell, so it measures the spread of the STREAM.
+Counting rejects individual VEHICLES, whose headings scatter about twice as wide
+(lane changes, perspective, tracker noise). They are not the same quantity.
+**Rule.** Derive a per-vehicle threshold from per-vehicle measurements. Use flow
+to FIND the streams and their geometry; never to set a rejection threshold.
+**The better fact.** Sweeping tolerance showed the count is IDENTICAL from 30 to
+89 deg - the heading distribution has a clean gap above 27 deg. So the tolerance
+sits on a PLATEAU, not a slope, and is not a free parameter here (cf. L-001).
+Set it to 40: mid-plateau, covers the observed max with 50% margin, and far from
+the 79 deg that would be needed to admit the opposing stream.
+**Corollary for extent.** The 30 s verification segment said stream 1's first 113
+px carried no crossings. The full 609 s clip showed the 56-113 px portion is the
+BUSIEST part of that line. Trimmed only the first 56 px. Third time this pattern
+has appeared (L-016, Brea y305-480, here): a short sample is never evidence of
+absence - decide extent on full-clip evidence.
+**Also measured.** The tracker's reported position leads the detection by a
+median of 33 px (p90 61 px). An IoU-based detector/tracker comparison therefore
+reports false "misses"; match on centre distance relative to box size instead.
+That mistake made a correctly-tracked vehicle look like a 19-frame miss.

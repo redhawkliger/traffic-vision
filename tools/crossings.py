@@ -41,7 +41,8 @@ DEFAULTS = {
     "heading_tol_deg": 30.0,
     "along_range": None,
     "window_frames": None,
-    "local_motion": "pair",          # 'pair' = the two observations straddling the line
+    "local_motion": "pair",
+    "anchor": "ground",         # "ground" = box bottom-centre (no height bias); "centroid" = legacy
     "near_duplicate_seconds": 1.0,
     "n_segments": 4,
     "maturity": {"min_obs": 3, "min_travel_widths": 1.0,
@@ -97,6 +98,21 @@ class Geometry:
         return x * self.d[0] + y * self.d[1]
 
 
+
+# --- ground anchor -----------------------------------------------------------
+# A box CENTROID sits higher in the image for a tall vehicle, so on an oblique
+# view it is displaced along the line toward the far end - by 32px for a car and
+# 88px for a truck, correlation with box height r=1.000 (measured at SR-41
+# Bullard, L-022). That is a height-dependent bias inside the measurement, and it
+# cost two truck counts. The GROUND CONTACT POINT - bottom-centre of the box - is
+# where the vehicle actually meets the road plane and carries no such bias.
+def _pt(r, anchor="ground"):
+    """Return the (x, y) used for all crossing geometry."""
+    if anchor == "centroid":
+        return r["cx"], r["cy"]
+    return r["cx"], r["cy"] + r["h"] / 2.0
+
+
 def load_tracks(path_or_dict):
     D = path_or_dict if isinstance(path_or_dict, dict) else json.load(open(path_or_dict))
     tracks = collections.defaultdict(list)
@@ -119,6 +135,7 @@ def resolve_params(cfg):
 
 # --------------------------------------------------------------- core finder
 def find_events(tracks, fps, geo, params, heading_tol=None, band_shift=(0, 0)):
+    anchor = params.get("anchor", "ground")
     """One event per track. Returns list of event dicts (counted or rejected)."""
     tol = params["heading_tol_deg"] if heading_tol is None else heading_tol
     rng = params["along_range"] or [0.0, geo.length]
@@ -130,18 +147,20 @@ def find_events(tracks, fps, geo, params, heading_tol=None, band_shift=(0, 0)):
         accepted, first_reject = None, None
         for i in range(len(t) - 1):
             p, q = t[i], t[i + 1]
-            sp, sq = geo.side(p["cx"], p["cy"]), geo.side(q["cx"], q["cy"])
+            px_, py_ = _pt(p, anchor); qx_, qy_ = _pt(q, anchor)
+            sp, sq = geo.side(px_, py_), geo.side(qx_, qy_)
             if not (sp < 0 <= sq):
                 continue
             fr = -sp / (sq - sp)
-            xc = p["cx"] + fr * (q["cx"] - p["cx"])
-            yc = p["cy"] + fr * (q["cy"] - p["cy"])
+            xc = px_ + fr * (qx_ - px_)
+            yc = py_ + fr * (qy_ - py_)
             s = geo.along(xc, yc)
             if local == "win2":
                 a, b = t[max(0, i - 1)], t[min(len(t) - 1, i + 2)]
             else:
                 a, b = p, q
-            vx, vy = b["cx"] - a["cx"], b["cy"] - a["cy"]
+            ax_, ay_ = _pt(a, anchor); bx_, by_ = _pt(b, anchor)
+            vx, vy = bx_ - ax_, by_ - ay_
             vm = math.hypot(vx, vy)
             cosang = (vx * geo.d[0] + vy * geo.d[1]) / vm if vm else 0.0
             heading = math.degrees(math.acos(max(-1.0, min(1.0, cosang))))
@@ -161,7 +180,7 @@ def find_events(tracks, fps, geo, params, heading_tol=None, band_shift=(0, 0)):
                 "heading_deg": round(heading, 2),
                 "obs_before": i + 1,
                 "travel_before_in_widths": round(
-                    (geo.proj_dir(q["cx"], q["cy"]) - geo.proj_dir(first["cx"], first["cy"]))
+                    (geo.proj_dir(*_pt(q, anchor)) - geo.proj_dir(*_pt(first, anchor)))
                     / max(q["w"], 1e-9), 3),
                 "bbox_w_at_cross": q["w"],
                 "_box": (q["cx"], q["cy"], q["w"], q["h"]),
@@ -203,6 +222,7 @@ def mark_near_duplicates(events, fps, seconds):
 
 # ---------------------------------------------------------------- maturity
 def maturity_stats(tracks, geo, params, events):
+    anchor = params.get("anchor", "ground")
     """Per-segment of the band: are tracks established before the line?"""
     rng = params["along_range"] or [0.0, geo.length]
     n = params["n_segments"]
@@ -228,16 +248,17 @@ def maturity_stats(tracks, geo, params, events):
         if tid in crossed or len(t) < 2:
             continue
         a, b = t[0], t[-1]
-        if geo.side(a["cx"], a["cy"]) < 0:
+        if geo.side(*_pt(a, anchor)) < 0:
             continue
-        vx, vy = b["cx"] - a["cx"], b["cy"] - a["cy"]
+        ax_, ay_ = _pt(a, anchor); bx_, by_ = _pt(b, anchor)
+        vx, vy = bx_ - ax_, by_ - ay_
         vm = math.hypot(vx, vy)
         if vm < a["w"]:
             continue
         ang = math.degrees(math.acos(max(-1.0, min(1.0, (vx * geo.d[0] + vy * geo.d[1]) / vm))))
         if ang > tol:
             continue
-        k = seg_of(geo.along(a["cx"], a["cy"]))
+        k = seg_of(geo.along(*_pt(a, anchor)))
         if k is not None:
             segs[k]["born_past_line"] += 1
     out = []

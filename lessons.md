@@ -440,3 +440,28 @@ human picked (merge gap, conf threshold, band edge, heading tolerance, track-bir
 threshold). Zero were the model's capability. The fix was never a better model;
 it was deriving the number from a measurement and then checking the answer does
 not move when the number does.
+
+## L-022 — The crossing point used the box centroid, which carries a height bias
+**Found:** 2026-10-07, owner reviewed bullard-n50 and named two missed TRUCKS -
+"black truck at far corner" (region A) and "white box truck at 0:10" (region B).
+**Mechanism.** Crossing geometry used the bounding-box CENTROID. On an oblique
+view a taller vehicle's box centroid sits higher in the image, so it projects
+FURTHER along the counting line toward the far end. Measured over 79 crossings
+the displacement is 32 px for a car and 88 px for a truck, and the correlation
+between box height and displacement is **r = 1.000** - a geometric identity, not
+a tendency. Both missed vehicles were trucks pushed just past the line's end
+(along 389.4 and 400.9 on a line ending at 386.2) and rejected as out-of-band.
+**Fix.** Use the GROUND CONTACT POINT - bottom-centre of the box - for all
+crossing geometry. That is where the vehicle meets the road plane, and it carries
+no height term. `anchor: "ground"` is now the default in tools/crossings.py.
+**Result.** Both trucks are now counted. A 31->32, B 45->46. The regression on
+the owner-confirmed 15/15 window still gives 15, and its sweep TIGHTENED from
+12-15 to 15-15 - flat across every tolerance and band shift tested. Region A is
+likewise now 32-32 across the whole sweep.
+**Why it mattered more than two counts.** The bias is proportional to vehicle
+height, so it systematically displaced HEAVY VEHICLES relative to cars. Scope is
+volumes AND classification; a height-dependent position error would have biased
+the truck percentage - the number an engineer actually uses - in a way no volume
+total would reveal.
+**Rule.** A measurement anchored to a bounding box inherits that box's geometry.
+Anchor to the ground plane, where the physical quantity lives.

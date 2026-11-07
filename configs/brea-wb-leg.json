@@ -1,0 +1,7 @@
+{
+  "site": "SR-90 at Brea Blvd, CCTV 510 - westbound movement (left + through), lower-right approach to upper-left exit",
+  "line": [[1000, 250], [1000, 560]],
+  "direction": [-0.97, -0.17],
+  "heading_tol_deg": 30,
+  "note": "Line + arrow CONFIRMED by owner on a still frame (2026-10-02) BEFORE any count: starts at the crosswalk edge, y250-560, on the right-side pavement; arrow tilted clockwise (up-left, ~10 deg above leftward). Owner counts all westbound (left + through). Supersedes configs/brea-wb.json (spent, L-012). Tracked at skip=1 (L-013)."
+}

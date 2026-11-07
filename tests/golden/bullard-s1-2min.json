@@ -1,0 +1,112 @@
+{
+  "benchmark_id": "bullard-s1-2min",
+  "status": "SEALED PREDICTION - awaiting owner review count. Do not tune anything on this window.",
+  "created": "2026-10-05",
+  "purpose": "First benchmark on a site chosen for COUNTABILITY rather than intersection geometry, and the first where every parameter was derived from measurement before any count existed.",
+  "source": {
+    "camera": "SR-41 at Bullard Ave, Caltrans D6, CCTV 41_Bullard",
+    "resolution": "1920x1080",
+    "fps": 30,
+    "clip": "data/clips/sr41_bullard_mon_20261005.ts",
+    "recorded": "2026-10-05 Monday ~15:22-15:32 PDT",
+    "window_frames": [
+      11100,
+      14700
+    ],
+    "window_seconds_of_clip": [
+      370.0,
+      490.0
+    ],
+    "tracked_frames": [
+      11050,
+      14700
+    ],
+    "tracking": "skip=1, imgsz 1920, conf 0.15, yolo11n + pinned configs/tracker.yaml (L-015)",
+    "owner_has_seen_this_window": false
+  },
+  "definition": {
+    "what_is_counted": "A vehicle crossing the stream-1 line, moving along +157 deg (the SB 41 mainline), local motion at the crossing within 40 deg of that direction.",
+    "config": "configs/bullard-s1.json",
+    "line": [
+      [
+        336,
+        1066
+      ],
+      [
+        205,
+        759
+      ]
+    ],
+    "heading_tol_deg": 40
+  },
+  "everything_derived": {
+    "direction": "motion-weighted mean of 18,288 frames of optical flow",
+    "tolerance": "per-vehicle crossing headings on the verification segment (p95 24.1, max 26.1); set to 40, mid-PLATEAU - every value 30-89 deg gives an identical count, so this is not a free parameter (L-019)",
+    "extent": "detection density along the line over the full 609.6 s clip, not a short probe",
+    "position": "maturity sweep on the verification segment; 55/65/75 all returned NO_MATURE_ZONE, 85 is clean"
+  },
+  "window_selection": {
+    "rule": "PRE-STATED in docs/protocols/sr41-bullard.md before any count: the 120 s with the most vehicle DETECTIONS in the line bands, from a 25-frame-stride detection pass.",
+    "excluded": [
+      "verification segment 14950-15900",
+      "window 4150-7800, RETIRED under L-007"
+    ],
+    "selected": "frames 11100-14700, 309 band detections"
+  },
+  "sealed_prediction": {
+    "value": 48,
+    "sweep_range": [
+      47,
+      48
+    ],
+    "sweep_knobs": "heading tolerance 20-35 deg x band shift +-40 px",
+    "note": "The sweep is 47-48 across EVERY combination - the count is essentially insensitive to both knobs.",
+    "sealed_at": "2026-10-05, BEFORE any human count and before the review video was rendered"
+  },
+  "maturity": {
+    "verdict": "all populated segments MATURE",
+    "by_segment": [
+      {
+        "seg": "0-83",
+        "n": 6,
+        "born_past": 0,
+        "med_travel_widths": 4.71,
+        "verdict": "mature"
+      },
+      {
+        "seg": "83-167",
+        "n": 25,
+        "born_past": 0,
+        "med_travel_widths": 4.81,
+        "verdict": "mature"
+      },
+      {
+        "seg": "167-250",
+        "n": 17,
+        "born_past": 0,
+        "med_travel_widths": 5.7,
+        "verdict": "mature"
+      },
+      {
+        "seg": "250-334",
+        "n": 0,
+        "verdict": "no_data - the far lanes, see known_limitation"
+      }
+    ]
+  },
+  "known_limitation": "Stream 1's FAR lanes are not countable at this camera. Where they are in frame their tracks are born past any placeable line; where tracks are mature they are out of frame. This number covers the NEAR lanes only and must never be quoted as the full stream-1 volume.",
+  "open_for_review": [
+    "A white SUV crossing around f12038-12047 (conf 0.79-0.87) could not be matched to a track from bounding boxes. The tracker's position leads the detection by a median 33 px, which makes this ambiguous either way - the owner's eyes decide.",
+    "Watch for PAIRS of white vehicles travelling together: at one spot on the verification segment a pickup and a car shared a single track."
+  ],
+  "stream_2_status": "NOT SEALED. Stream 2 returned NO_MATURE_ZONE on segment 134.7-202.1 (n=1, born_past=3) on this window, which the protocol says blocks sealing. Its count was 24, sweep 15-24 - the width comes from line POSITION, not the heading threshold (stable 30-31 across 30-35 deg). Stream 2 needs the same position sweep stream 1 got, on verification data.",
+  "counts": {
+    "user": null,
+    "count_type": "reviewed (numbered video, per delivery protocol)"
+  },
+  "caveats": [
+    "Weekday afternoon, free-flow freeway. No congestion, no queues, no turning movements.",
+    "Single camera, single clip. Generalisation untested.",
+    "N=48 is close to the N>=50 that L-008 wants, but one error is still ~2%."
+  ]
+}

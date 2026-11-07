@@ -198,6 +198,31 @@ next action:
   step 1 runs on footage we already have.
   Uncommitted in repo: tools/stitch.py, tools/track.py, tools/eval_stitch.py.
 
+## DECISIONS 2026-10-02 (ADR-0002 session)
+- ADR-0002 (classification method) drafted, PARKED. Volumes first, then classification.
+- Targets 85/92.75/98 apply PER CLASS as well, on the SAME benchmarks, later.
+- Dual-rear-wheel rule as truth definition: UNDECIDED (user: often only one wheel
+  visible). Settle from crop evidence when classification starts.
+- NEXT: tripwire placement (L-010/L-011) -> volumes right -> then classification.
+- Honest benchmark B blind figure is 85.7% (12 vs reference 14), not 92.3%. After the
+  zone fix B = 13/14, which is IN-SAMPLE. The counting script is NOT in the repo's
+  tools/ (spike/ only) - the crossing counter must be committed as a real tool.
+
+## SESSION END 2026-10-02 (resume point)
+- STAYING ON BREA (CCTV 510). Weekday recording scheduled: Mon 2026-10-05 07:45 PDT, 15 min
+  -> data/clips/brea510_mon_20261005_0745.ts (task record-brea-weekday-am; runs only if app open).
+- Tracker PINNED (configs/tracker.yaml, TrackTrack 0.25/0.25/0.1, recorded in track headers). L-015.
+  Harbor A/B were scored on a DIFFERENT tracker (ByteTrack ~0.15); regression still 20 / 13, in-sample.
+- Tools committed: crossings.py (any line/direction), review_video.py (no band-reject clutter), track.py --start/--end.
+- Brea benchmarks SPENT: brea-wb-5min (L-012), brea-wb-leg-1min (dev window, owner-reviewed). Unseen Brea footage exhausted (L-016).
+- Westbound leg line confirmed by owner: configs/brea-wb-leg.json (x=1000, y250-560, up-left arrow).
+- ADR-0002 (classification) PARKED. ADR-0003 (zone-gate model, owner's octagon idea) PROPOSED.
+- Camera search: 202 live D12 cams screened; none clearly 4-leg (stills dusk/low-res). Brea ~3 legs + clipped south.
+- Archives: only Bellevue WA dataset (101 h, 5 intersections, no ground truth, licence unclear) is a real option; NOT pursued. Traffic Cam Archive = $250/h, not pursued.
+- NEXT (Monday): daylight check of real frames (Brea, maybe Palm St 507) -> owner confirms gates on a still, one mouth at a time ->
+  pick test minute by a PRE-STATED volume rule (min subjects, from raw detections, before any method output) -> seal -> owner reviews.
+- Process rules learned: owner confirms line on a still BEFORE sealing; NO_MATURE_ZONE blocks sealing; pin tracker; check window power first.
+
 ## MODEL TIERING (user plan, 2026-10-02)
 User is switching this work to cheaper models where appropriate.
   Sonnet  -> implementing a decided design, running tests, refactoring
@@ -259,3 +284,34 @@ GITIGNORED and therefore DISK-ONLY (not recoverable from GitHub):
 Video is excluded deliberately - size, and the Caltrans commercial terms are
 unresolved. The venv and models are reinstallable; the CLIPS AND BENCHMARK
 VIDEOS ARE NOT. Back those up separately if they matter.
+
+## SESSION 2026-10-05 (resume point)
+- CAMERA MOVED between the Sunday clips and Monday: +290 px horizontal, +37 px vertical
+  (phase correlation). configs/brea-wb-leg.json does NOT transfer - its x=1000 maps off-frame.
+  View is stable to +-0.3 px WITHIN the Monday clip. ADR-0001 named this risk; it has now happened.
+- Monday clip: data/clips/brea510_mon_20261005_0745.ts. Scheduled 07:45, ACTUALLY captured
+  09:04-09:19 (task only fires with the app open). 910 s, 1280x720, weekday, not peak.
+  Owner ruled peak is NOT required: the goal is the counting method, not the dataset.
+- NEW TOOLING THIS SESSION (scratch_diag/, untracked): motion_map.py (15-min motion + flow
+  direction field), size_map.py (pixels-per-vehicle = ADR-0001 step 2 QUALIFY, never run before),
+  window_pick.py (pre-stated window rule). These replaced eyeballing a line.
+- LINE SET FROM EVIDENCE: configs/brea-mon-wb.json, x=400 y130-480, direction [-1.0,-0.014],
+  tol 30. Owner chose candidate A and flagged that a long line also catches cross traffic (L-005);
+  bottom trimmed on that basis.
+  WITHDRAWN CLAIM: "y510-610 is opposing lanes" was an artifact - flow coherence there is 0.04,
+  i.e. mean flow is noise. Optical flow cannot read direction below y~450 (large fast near-field
+  vehicles). Open question: is y450-480 clean? Settle with tracks, not flow.
+  NEARLY TRIMMED WRONGLY: a 30 s probe showed no crossings below y=305; the full 15 min shows
+  y340-460 carries 40/136 on-line detections. Short sample != absence (L-016 shape). Line kept.
+- BENCHMARK brea-mon-wb-2min SEALED (commit fdc1e3e): 83, sweep 75-86, frames 1000-4000
+  (clip t 40-160 s). Window by pre-stated detection-density rule; 120 s length justified by a
+  rate probe at t 600-630 s (26 crossings/min) that will never be a benchmark.
+  AWAITING OWNER COUNT. Do not tune anything on this window.
+- MATURITY IS THE BEST SO FAR: 3.8-6.2 vehicle-widths travelled before the line, 0-4% immature,
+  vs 1.1-1.5 widths and 20-33% on the Sunday line. L-011 designed out, not patched.
+- L-014 near-duplicate heuristic STILL UNFIXED (verified by reading the code). Its 36 flags on
+  this window are noise - ignore. Fix: require the two tracks never to be alive simultaneously.
+- L-017 logged: a benchmark's state lived in the golden file AND ANCHOR and they disagreed;
+  the owner was asked to re-review finished work. Golden file is now the single source of truth.
+  brea-wb-leg-1min corrected: owner review recorded, reference 21, SPENT/in-sample.
+- STILL UNSIGNED: ADR-0001 (count crossings not tracks), ADR-0003 (zone-gate). ADR-0002 parked.

@@ -1,0 +1,75 @@
+{
+  "benchmark_id": "bullard-n50",
+  "status": "SEALED - awaiting owner count",
+  "created": "2026-10-07",
+  "purpose": "Resolve the sample-size limit (L-008): N>=50 subjects so the 92.75 vs 98 distinction is measurable.",
+  "source": {
+    "camera": "SR-41 at Bullard Ave, D6 CCTV 41_Bullard",
+    "clip": "data/clips/sr41_bullard_mon_20261005.ts",
+    "fps": 30,
+    "resolution": "1920x1080",
+    "tracking": "skip=1 imgsz1920 conf0.15 yolo11n + pinned tracker"
+  },
+  "definition": {
+    "what_is_counted": "vehicle crossing the stream-1 line, local motion within 40 deg of +157 deg (SB 41 mainline)",
+    "config": "configs/bullard-s1-full.json",
+    "line": [
+      [
+        848,
+        1073
+      ],
+      [
+        696,
+        718
+      ]
+    ],
+    "line_provenance": "the owner-approved full-carriageway line, unchanged from the reconciled 15/15 run"
+  },
+  "regions": [
+    {
+      "id": "A",
+      "frames": [
+        1200,
+        4150
+      ],
+      "seconds": 98.3,
+      "tracked_from": 1150,
+      "predicted": 31,
+      "sweep": [
+        19,
+        32
+      ],
+      "maturity": "all populated segments mature"
+    },
+    {
+      "id": "B",
+      "frames": [
+        7800,
+        11050
+      ],
+      "seconds": 108.3,
+      "tracked_from": 7750,
+      "predicted": 45,
+      "sweep": [
+        32,
+        46
+      ],
+      "maturity": "all populated segments mature"
+    }
+  ],
+  "sealed_prediction": {
+    "total": 76,
+    "sweep_total": [
+      51,
+      78
+    ],
+    "seconds": 206.6,
+    "note": "Tolerance-INERT: 31 and 45 at 20/25/30/35 deg. The sweep width comes entirely from shifting the line ENDS by 40px, which cuts the far-end segments where many crossings occur.",
+    "sealed_at": "2026-10-07 BEFORE any human count and before the review videos existed"
+  },
+  "why_untouched": "Neither region was used for tuning, peeked, or overlapped with the verification segment (14950-15900), the retired windows (4150-7800, 11050-14700) or the reconciled 30s window (300-1200).",
+  "counts": {
+    "user": null,
+    "count_type": "reviewed (numbered video, per delivery protocol)"
+  }
+}

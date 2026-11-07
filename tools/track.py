@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 import warnings
 
@@ -22,9 +23,32 @@ warnings.filterwarnings("ignore")
 
 VEHICLE_CLASSES = {0: "ped", 1: "bike", 2: "car", 3: "motorbike", 5: "HV", 7: "HV"}
 
+# The tracker is PINNED (never the invisible ultralytics library default). Its path and
+# full resolved contents are written into every output header.
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_TRACKER = os.path.join(ROOT, "configs", "tracker.yaml")
+
+
+def resolve_tracker(tracker: str | None = None) -> tuple[str, dict]:
+    """Return (absolute yaml path, parsed contents). None -> configs/tracker.yaml.
+    A bare name such as 'bytetrack.yaml' resolves to the installed ultralytics cfg."""
+    import yaml
+    path = tracker or DEFAULT_TRACKER
+    if not os.path.exists(path):
+        import ultralytics
+        alt = os.path.join(os.path.dirname(ultralytics.__file__), "cfg", "trackers",
+                           os.path.basename(path))
+        if not os.path.exists(alt):
+            raise FileNotFoundError(f"tracker yaml not found: {path}")
+        path = alt
+    path = os.path.abspath(path)
+    with open(path, encoding="utf-8") as fh:
+        return path, yaml.safe_load(fh)
+
 
 def track(path: str, skip: int = 3, imgsz: int = 1280, conf: float = 0.15,
-          model_name: str = "yolo11n.pt", tracker: str | None = None) -> dict:
+          model_name: str = "yolo11n.pt", tracker: str | None = None,
+          start: int = 0, end: int | None = None) -> dict:
     import cv2
     from ultralytics import YOLO
 
@@ -34,13 +58,19 @@ def track(path: str, skip: int = 3, imgsz: int = 1280, conf: float = 0.15,
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    kwargs = dict(persist=True, imgsz=imgsz, conf=conf,
+    tracker_path, tracker_cfg = resolve_tracker(tracker)
+    kwargs = dict(persist=True, imgsz=imgsz, conf=conf, tracker=tracker_path,
                   classes=list(VEHICLE_CLASSES), verbose=False)
-    if tracker:
-        kwargs["tracker"] = tracker
 
     records, i, started = [], 0, time.time()
     while True:
+        if end is not None and i >= end:
+            break
+        if i < start:  # sequential grab keeps absolute frame indices exact on .ts
+            if not cap.grab():
+                break
+            i += 1
+            continue
         ok, frame = cap.read()
         if not ok:
             break
@@ -71,6 +101,9 @@ def track(path: str, skip: int = 3, imgsz: int = 1280, conf: float = 0.15,
     return {"source": path, "width": w, "height": h, "n_frames": n_frames,
             "meta_fps": meta_fps, "true_fps": true_fps, "skip": skip,
             "imgsz": imgsz, "conf": conf, "model": model_name,
+            "tracker_yaml": tracker_path,
+            "tracker_name": tracker_cfg.get("tracker_type"),
+            "tracker_config": tracker_cfg,
             "elapsed_s": round(time.time() - started, 1), "records": records}
 
 
@@ -83,10 +116,13 @@ def main() -> None:
     ap.add_argument("--imgsz", type=int, default=1280)
     ap.add_argument("--conf", type=float, default=0.15)
     ap.add_argument("--model", default="yolo11n.pt")
-    ap.add_argument("--tracker", help="e.g. botsort.yaml")
+    ap.add_argument("--tracker", help="tracker yaml; default configs/tracker.yaml (pinned TrackTrack)")
+    ap.add_argument("--start", type=int, default=0, help="first frame to process")
+    ap.add_argument("--end", type=int, default=None, help="stop before this frame")
     args = ap.parse_args()
 
-    data = track(args.video, args.skip, args.imgsz, args.conf, args.model, args.tracker)
+    data = track(args.video, args.skip, args.imgsz, args.conf, args.model, args.tracker,
+                 args.start, args.end)
     with open(args.out, "w") as fh:
         json.dump(data, fh)
     ids = {r["id"] for r in data["records"]}

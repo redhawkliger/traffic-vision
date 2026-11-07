@@ -1,0 +1,28 @@
+{
+ "site": "SR-41 at Bullard Ave, Caltrans D6 CCTV 41_Bullard - stream 2",
+ "line": [
+  [
+   1451,
+   624
+  ],
+  [
+   1642,
+   814
+  ]
+ ],
+ "direction": [
+  0.706,
+  -0.708
+ ],
+ "heading_tol_deg": 40.0,
+ "note": "DERIVED from 18,288 frames of motion, not drawn. Mean travel -45.1 deg; measured heading spread p95 = 21.0 deg; tolerance = p95*1.4 capped inside half the 158.1 deg separation between the two streams. Line at the 65th percentile along travel so vehicles are mature at the crossing. EXTENT TRIMMED on full-clip evidence: segs 5-8 (along 240-481) had 0 detections in 10 min; trimmed to 270 to leave margin. TOLERANCE CORRECTED 16.1/29.4 -> 40: flow-derived spread understated per-vehicle spread ~2x (stream 1 flow p95 11.5 vs per-vehicle p95 24.1), and +-16 was rejecting 4 of 23 real vehicles. 40 sits mid-PLATEAU: every tolerance from 30 to 89 deg gives an identical count, so this knob is not a free parameter here. Streams are 158 deg apart, so 40 cannot admit the opposing stream.",
+ "derivation": {
+  "tolerance_from": "per-vehicle crossing headings on the verification segment (in-sample)",
+  "plateau_deg": [
+   30,
+   89
+  ],
+  "per_vehicle_max_dev_deg": 26.6,
+  "extent_from": "detection density along the line over the full 609.6 s clip"
+ }
+}

@@ -1,0 +1,70 @@
+{
+  "benchmark_id": "brea-wb-leg-1min",
+  "status": "SPENT - owner-reviewed 2026-10-02; the two named misses drove the L-015 tracker pin, so this window is IN-SAMPLE. Do not quote as an accuracy.",
+  "created": "2026-10-02",
+  "purpose": "Ladder step 1 on a second camera: one leg, one minute, westbound (left + through), line confirmed by owner on a still frame BEFORE any count. Replaces spent brea-wb-5min (L-012/L-013).",
+  "source": {
+    "camera": "SR-90 at Brea Blvd, CCTV 510",
+    "recorded": "2026-09-27 Sunday",
+    "window_frames": [
+      4500,
+      6000
+    ],
+    "window_seconds_of_source": [
+      180.0,
+      240.0
+    ],
+    "tracked_frames": [
+      4450,
+      6000
+    ],
+    "tracking": "skip=1, imgsz 960, conf 0.15, yolo11n + ByteTrack",
+    "owner_has_seen_this_window": true
+  },
+  "definition": {
+    "what_is_counted": "A vehicle crossing the vertical line x=1000 within y=[250,560], moving westbound (leftward/up-left), local heading within 30 deg of direction [-0.97,-0.17]. Left + through both count.",
+    "config": "configs/brea-wb-leg.json"
+  },
+  "sealed_prediction": {
+    "value": 19,
+    "sweep_range": [
+      18,
+      19
+    ],
+    "rejected": {
+      "band": 3
+    },
+    "maturity": "no NO_MATURE_ZONE verdict; segments y250-405 mature but median travel before the line only 1.1-1.5 own widths and 20-33% immature crossers (borderline); y405-560 had no data.",
+    "known_unreliable": "near_duplicate flags (10 pairs) use the heuristic proven wrong 16/16 on Brea (L-014, not yet fixed) - ignore them.",
+    "detail": "benchmarks/brea-wb-leg-1min/sealed_prediction.json (disk only)",
+    "sealed_at": "2026-10-02, BEFORE any human count"
+  },
+  "counts": {
+    "user": 21,
+    "count_type": "reviewed (numbered video, per delivery protocol)",
+    "provenance": "Owner reviewed the numbered review.mp4 and named two misses: a MOTORBIKE at ~0:13 and a white vehicle mid-road at ~0:18. No false positives reported. Reference = 19 sealed + 2 named misses = 21. This is a REVIEW, not an independent blind count.",
+    "reviewed_again": "2026-10-05 - owner re-reported the SAME two findings from memory, confirming the review happened and the record was simply never written.",
+    "misses": [
+      {
+        "t_video": "~0:13",
+        "what": "motorbike",
+        "mechanism": "detection conf 0.41-0.53; TrackTrack new_track_thresh 0.7 refused to start a track (L-015)"
+      },
+      {
+        "t_video": "~0:18",
+        "what": "white vehicle, middle of the road",
+        "mechanism": "same track-birth threshold (L-015)"
+      }
+    ]
+  },
+  "caveats": [
+    "Same Sunday morning as the other benchmarks; no weekday/congestion.",
+    "Only ~19 vehicles: one error = ~5%, cannot resolve stage 2 vs 3 (L-008).",
+    "Lower half of the line saw no traffic this minute."
+  ],
+  "score_in_sample": {
+    "sealed": 19,
+    "reference": 21,
+    "note": "19/21 = 90.5% but IN-SAMPLE - this window was used to find and fix the L-015 defect (L-007)."
+  }
+}

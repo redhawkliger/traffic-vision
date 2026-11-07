@@ -256,3 +256,212 @@ addresses detection error; our measured errors are not detection errors.
 **Rule.** Before reaching for a bigger or additional model, verify the failure is
 actually a detection failure. Run the candidate models on the specific frame.
 Three of five defects here would have been invisible to any model change.
+
+---
+
+## L-012 — A line placed inside the intersection box cannot isolate a movement
+**Found:** 2026-10-02, owner review of benchmark `brea-wb-5min` (to 1:59).
+`configs/brea-wb.json` (x=640, y 100-450, "right to left") was chosen from track
+statistics without viewing a frame. Three movements overlap there with a leftward
+pixel component; 25 of the sealed 64 counts (39%) were vehicles the owner correctly
+said were not the stream, and the 30 deg knob (58-68) merely sliced one of those
+families. No band can separate them at x=640 (y-ranges overlap). The directional
+test itself is correct (verified synthetically and on real tracks).
+**The sealed warning "true value may sit below 64" pointed the wrong way** - the
+owner's stream was under-counted.
+**Rules.** (1) Place tripwires on an approach/departure LEG, perpendicular to its
+lanes, never inside the box. (2) Before sealing, a human confirms a still frame with
+line + arrow + the movement written in words. (3) A NO_MATURE_ZONE verdict blocks
+sealing; it does not become a footnote.
+
+## L-013 — Frame skip is a counting parameter, not a cost knob
+Tracking every 3rd frame (8.3 fps) made fast near-field vehicles (50-75 px/step,
+IoU 0.24-0.43 between samples) fail ByteTrack's one-chance confirmation. Every
+vehicle the owner named as missed was DETECTED (conf 0.85-0.92) but never tracked
+before the line (same mechanism as L-011, systemic). Skip 1 tracked 30 owner-stream
+vehicles to 1:59 vs 17 sealed. Harbor was spared only because vehicles enter small
+and slow. The re-track figures are IN-SAMPLE evidence, not a result.
+
+## L-014 — Near-duplicate flag was wrong 16/16
+`mark_near_duplicates` compared boxes at each track's own crossing time, so
+platooned vehicles in adjacent lanes tripped it. All 16 flagged pairs were
+concurrently alive tracks. Report-only (no count effect) but it misled the review.
+Fix: require the two tracks never to be alive at the same time.
+
+## Process note (same session)
+Changed four things at once on Brea (new camera, new tool, 5 min, new direction),
+skipped ladder steps 1-2, and sealed blind. The Harbor loop worked because the line
+was seen on video first, one leg, one minute. Return to that loop. brea-wb-5min is
+now SPENT / in-sample.
+
+---
+
+## L-015 — The tracker was never pinned; Brea and Harbor used different trackers
+**Found:** 2026-10-02, tracker experiments on the Brea dev window.
+Every document said "ByteTrack". The installed ultralytics (8.4.171) default is
+TrackTrack with new_track_thresh 0.7, which cannot start a track from a weak
+detection. The owner's missed motorbike (det conf 0.41-0.53) and the middle truck
+were both lost for this reason. Harbor's stored tracks were made by ByteTrack at
+~0.15 thresholds (re-track reproduced 41/41 ids); the first Brea run used
+TrackTrack defaults, so the "frozen method" claim for Brea was false.
+**Fix.** `configs/tracker.yaml` (TrackTrack, high=new=0.25, low=0.1) is now the
+default in tools/track.py and every output header records the tracker. On the Brea
+dev stretch it recovers both misses once each with nothing else gained/lost
+(ByteTrack 0.15 misses the bike and double-counts the truck). Harbor A=20, B=13
+reproduced (B swaps one crossing: loses the L-010 y=690.9 vehicle, gains one at
+f3228). All IN-SAMPLE. The Harbor benchmarks were scored on a different tracker.
+**Rule.** The tracker, its thresholds and the library version are part of the
+method. Pin and record them before any sealed prediction.
+
+## L-016 — Check a window has enough subjects BEFORE spending it
+Brea source seconds 240-300 had 2 westbound crossings (11 outside the band): zero
+statistical power, and one count was peeked at to learn that. Unseen Brea footage
+is effectively exhausted. Rule: choose benchmark windows by a pre-stated volume rule
+(and a minimum subject count) from independent evidence, before any method output
+is looked at; get new footage when the pool is spent.
+
+## L-017 — A benchmark's state lived in two files and they disagreed
+**Found:** 2026-10-05, owner asked "where are we" and was sent to re-review a
+benchmark they had already reviewed three days earlier.
+`tests/golden/brea-wb-leg-1min.json` said `status: "SEALED - awaiting owner review"`
+with `counts.user: null` and `owner_has_seen_this_window: false`. But ANCHOR.md
+said "brea-wb-leg-1min (dev window, owner-reviewed)" and L-015 already recorded
+the owner's two findings *by name* — the motorbike and the middle vehicle — and
+the tracker pin that fixed them. Claude read the JSON, trusted it, and asked the
+owner to redo finished work. The owner caught it: "it's an old video which I
+already reviewed," then re-reported the same two findings from memory.
+**Cost.** The owner's review time, and nearly a second in-sample benchmark.
+**Rule.** The golden file is the ONLY source of truth for a benchmark's state.
+A review is not received until it is written into that file in the same action.
+Never infer "outstanding" from a null field without reconciling ANCHOR + lessons;
+when two records disagree, the one naming concrete observations is the real one.
+
+## L-018 — No public operational camera shows a full intersection box, and that is structural
+**Found:** 2026-10-05, statewide then nationwide camera survey.
+The owner asked for a study site where the whole intersection box is in frame,
+perimeter outside the crosswalks. Searched two independent systems:
+  Caltrans statewide : 3,591 cameras, 3,589 stills, 874 within 90 m of an OSM
+                       traffic signal, 475 live full-res frames pulled, 252
+                       non-Interstate, top 90 screened by eye.
+  NYC DOT            : 972 cameras, 970 images, 812 named "<street> @ <street>".
+**ZERO showed four approaches.** Not one, out of 4,561 cameras in two systems
+run by different agencies on opposite coasts.
+**Why.** Operational cameras are mounted on signal poles and mast arms at the
+roadside and look ALONG an approach or corridor, because operations needs queues
+and incidents, not turning movements. A whole-box view needs the camera high
+above the centre of the box. In both systems the HIGH-RESOLUTION cameras are on
+freeways (NYC: 22 of 23 HD cameras are BQE/LIE/Cross-Bronx); intersection
+cameras are 352x240. Resolution and geometry are anti-correlated with what a
+turning-movement study needs.
+**Consequence.** The owner's own plan - mount our own camera and record - is not
+a convenience, it is the only way to get this geometry. The method should be
+developed against the geometry we will MOUNT, not the geometry a DOT happens to
+give. Scanning more states would re-confirm a structural fact, not find an
+exception.
+**Also recorded.** Two filters that worked, for reuse: OSM traffic_signals
+within 90 m identifies surface intersections (validated - Brea/Harbor/Beach land
+at 15/21/24 m, where an image-feature ranker put them at 1142/2226/2449 of 3589);
+white-pixel fraction > 0.55 removes "Temporarily Unavailable" placeholder cards
+(1,028 of 3,589). Ramp meters are tagged highway=traffic_signals, so the signal
+test alone admits freeway on-ramp cameras - exclude Interstates or motorway ways.
+
+## L-019 — Optical-flow spread understates per-vehicle spread by ~2x
+**Found:** 2026-10-05, verifying the derived config at SR-41 Bullard BEFORE sealing.
+Tolerance was derived from the heading spread of the optical-flow field: stream 1
+p95 = 11.5 deg -> tol +-16. Checking it against the headings of actual TRACKED
+vehicles at the crossing gave p95 = 24.1 deg, max 26.1. The derived +-16 was
+rejecting **4 of 23 real vehicles (17%)**.
+**Why.** Flow is averaged over a cell, so it measures the spread of the STREAM.
+Counting rejects individual VEHICLES, whose headings scatter about twice as wide
+(lane changes, perspective, tracker noise). They are not the same quantity.
+**Rule.** Derive a per-vehicle threshold from per-vehicle measurements. Use flow
+to FIND the streams and their geometry; never to set a rejection threshold.
+**The better fact.** Sweeping tolerance showed the count is IDENTICAL from 30 to
+89 deg - the heading distribution has a clean gap above 27 deg. So the tolerance
+sits on a PLATEAU, not a slope, and is not a free parameter here (cf. L-001).
+Set it to 40: mid-plateau, covers the observed max with 50% margin, and far from
+the 79 deg that would be needed to admit the opposing stream.
+**Corollary for extent.** The 30 s verification segment said stream 1's first 113
+px carried no crossings. The full 609 s clip showed the 56-113 px portion is the
+BUSIEST part of that line. Trimmed only the first 56 px. Third time this pattern
+has appeared (L-016, Brea y305-480, here): a short sample is never evidence of
+absence - decide extent on full-clip evidence.
+**Also measured.** The tracker's reported position leads the detection by a
+median of 33 px (p90 61 px). An IoU-based detector/tracker comparison therefore
+reports false "misses"; match on centre distance relative to box size instead.
+That mistake made a correctly-tracked vehicle look like a 19-frame miss.
+
+## L-020 — Stop hand-rolling road detection; a driving-scene model already does it
+**Found:** 2026-10-05, owner asked "do I need to teach computer vision how to read
+a roadway? Is there no model for this? Waymo drives cars - is that data not shared?"
+They were right. Two attempts at colour-threshold road detection failed: the first
+assumed black asphalt (this carriageway is light concrete) and matched buildings;
+the second, tuned to measured road pixels, matched 70% of the frame because the
+barrier, shoulder and sidewalk are also grey and unsaturated. Colour cannot
+separate "drivable carriageway" from "concrete next to the carriageway".
+**What works.** SegFormer-b0 fine-tuned on Cityscapes (`nvidia/segformer-b0-
+finetuned-cityscapes-1024-1024`, via transformers). Cityscapes labels are built
+for driving scenes: class 0 is `road`. One CPU inference on the vehicle-free
+median background segmented the carriageway cleanly - barrier out, shoulder out,
+dirt out, and the opposing carriageway beyond the barrier correctly excluded.
+Runs ONCE per camera, so CPU-only is irrelevant. tools/roadseg.py.
+**Rule.** Geometry questions about the scene (where is the road, the sidewalk, a
+lane) are a solved model class. Use the pretrained model; save hand-written rules
+for the measurement itself, where every threshold has to be defensible.
+**Second finding, from the same investigation.** At SR-41 Bullard the line
+position trades road coverage against track maturity, and the camera cannot give
+both at once:
+      pct along travel   30    50    65    75    85    90
+      road spanned (px) 452   400   370   292   246   218
+      maturity          fail  fail  fail  fail  PASS  PASS
+Moving to the 85th percentile to clear NO_MATURE_ZONE pushed the line to the frame
+edge, where most of the carriageway has already left view - which is exactly the
+missing left lane the owner spotted. A single line cannot serve every lane here.
+The fix is PER-LANE lines, each placed where that lane's own tracks are mature.
+
+## L-021 — First correct count, and exactly what it does and does not show
+**2026-10-05.** bullard-30s: predicted 15, owner confirmed 15. No misses, no
+false counts. The first time in this project that a count has been right.
+**What produced it.** Not a better model - the same yolo11n throughout. What
+changed is that every parameter stopped being chosen by hand:
+  direction  <- motion-weighted mean of 18,288 frames of optical flow
+  tolerance  <- per-vehicle crossing headings, not flow spread (L-019)
+  extent     <- SegFormer/Cityscapes road segmentation (L-020), owner-approved
+  position   <- maturity sweep, rejecting any position with NO_MATURE_ZONE
+And the count is now insensitive to the knobs: 15 at 20/25/30/35 deg tolerance.
+**What it does NOT show.** N=15, so one error would be 6.7%: this clears stage 1
+(85%) and cannot distinguish stage 2 (92.75%) from stage 3 (98%). L-008 still
+stands. It was REVIEWED, not blind. It is free-flow freeway in one direction on
+the near lanes - no queues, no turns, no occlusion - deliberately the easy case.
+And the line extent came from full-clip detection density, which includes these
+frames, so there is a weak in-sample dependency.
+**The lesson to carry.** Five defects in this project were traced to a number a
+human picked (merge gap, conf threshold, band edge, heading tolerance, track-birth
+threshold). Zero were the model's capability. The fix was never a better model;
+it was deriving the number from a measurement and then checking the answer does
+not move when the number does.
+
+## L-022 — The crossing point used the box centroid, which carries a height bias
+**Found:** 2026-10-07, owner reviewed bullard-n50 and named two missed TRUCKS -
+"black truck at far corner" (region A) and "white box truck at 0:10" (region B).
+**Mechanism.** Crossing geometry used the bounding-box CENTROID. On an oblique
+view a taller vehicle's box centroid sits higher in the image, so it projects
+FURTHER along the counting line toward the far end. Measured over 79 crossings
+the displacement is 32 px for a car and 88 px for a truck, and the correlation
+between box height and displacement is **r = 1.000** - a geometric identity, not
+a tendency. Both missed vehicles were trucks pushed just past the line's end
+(along 389.4 and 400.9 on a line ending at 386.2) and rejected as out-of-band.
+**Fix.** Use the GROUND CONTACT POINT - bottom-centre of the box - for all
+crossing geometry. That is where the vehicle meets the road plane, and it carries
+no height term. `anchor: "ground"` is now the default in tools/crossings.py.
+**Result.** Both trucks are now counted. A 31->32, B 45->46. The regression on
+the owner-confirmed 15/15 window still gives 15, and its sweep TIGHTENED from
+12-15 to 15-15 - flat across every tolerance and band shift tested. Region A is
+likewise now 32-32 across the whole sweep.
+**Why it mattered more than two counts.** The bias is proportional to vehicle
+height, so it systematically displaced HEAVY VEHICLES relative to cars. Scope is
+volumes AND classification; a height-dependent position error would have biased
+the truck percentage - the number an engineer actually uses - in a way no volume
+total would reveal.
+**Rule.** A measurement anchored to a bounding box inherits that box's geometry.
+Anchor to the ground plane, where the physical quantity lives.

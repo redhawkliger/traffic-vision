@@ -1,0 +1,49 @@
+{
+  "benchmark_id": "brea-wb-5min",
+  "status": "SPENT - owner review to 1:59 found setup error (L-012/L-013); in-sample from now on. Do not quote 64 as an accuracy.",
+  "created": "2026-10-02",
+  "purpose": "First held-out benchmark on a DIFFERENT camera (Brea Blvd, CCTV 510) at ladder step 3 scale (one stream, ~5 min). Method frozen at tools/crossings.py as committed; line fixed from track geometry before any count (configs/brea-wb.json, own commit).",
+  "source": {
+    "camera": "SR-90 at Brea Blvd, CCTV 510, Caltrans D12",
+    "recorded": "2026-09-27 Sunday 08:00",
+    "window_frames": [
+      0,
+      7740
+    ],
+    "fps": 25
+  },
+  "definition": {
+    "what_is_counted": "A vehicle crossing the vertical line x=640 within y=[100,450], travelling RIGHT TO LEFT (westbound through stream).",
+    "config": "configs/brea-wb.json"
+  },
+  "sealed_prediction": {
+    "value": 64,
+    "sweep_range": [
+      58,
+      68
+    ],
+    "sweep_knob": "heading tolerance 20..35 deg (band shifts had no effect)",
+    "rejected": {
+      "angle": 6
+    },
+    "near_duplicate_pairs": 16,
+    "warning": "16 near-duplicate track pairs flagged (not merged). Expect over-count from fragmented/duplicate tracks; the true value may sit below 64.",
+    "maturity_note": "Line segment [0,87.5] (y=100-187, far lane) flagged NO_MATURE_ZONE: 12 of 12 crossers born past the line.",
+    "detail": "benchmarks/brea-wb-5min/sealed_prediction.json (disk only)",
+    "sealed_at": "2026-10-02, BEFORE any human count"
+  },
+  "counts": {
+    "user": null,
+    "count_type": "reviewed (per delivery protocol: single video with numbering)"
+  },
+  "caveats": [
+    "Same morning/Sunday as Harbor: tests a different camera, not a weekday or congestion.",
+    "Window start has ~70 h264 missing-reference warnings from the stream start.",
+    "Heading tolerance is the sensitive knob here (58-68)."
+  ],
+  "owner_review": {
+    "reviewed_to": "1:59",
+    "provenance": "owner watched review.mp4 and reported by timestamp; not a full count",
+    "finding": "25/64 counts were non-stream movements; misses were tracker confirmation failures at skip=3. See lessons L-012..L-014."
+  }
+}

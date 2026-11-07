@@ -1,0 +1,7 @@
+{
+  "site": "SR-90 at Harbor Blvd, CCTV 506 (eastbound approach)",
+  "line": [[600, 300], [600, 720]],
+  "direction": "left_to_right",
+  "heading_tol_deg": 30,
+  "note": "Harbor-specific values live ONLY here. Window is per benchmark (A: 0 1500, B: 3000 4500). along_range [0,380] reproduces the old y 300-680 band."
+}

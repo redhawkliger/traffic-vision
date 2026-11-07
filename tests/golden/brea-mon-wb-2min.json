@@ -1,0 +1,96 @@
+{
+  "benchmark_id": "brea-mon-wb-2min",
+  "status": "SEALED PREDICTION - awaiting owner review count. Do not tune anything on this window.",
+  "created": "2026-10-05",
+  "purpose": "First WEEKDAY benchmark, and the first with enough subjects to resolve the ladder (L-008 needs N>=50). Ladder step: one leg, 2 minutes. New camera framing - the view moved +290 px from the Sunday clips, so this is not a reuse of any earlier line.",
+  "source": {
+    "camera": "SR-90 at Brea Blvd, CCTV 510",
+    "recorded": "2026-10-05 Monday, clip timestamp 09:04-09:19",
+    "note": "Scheduled for 07:45 but the task only fires with the app open; actual capture 09:04. Weekday, not AM peak.",
+    "window_frames": [
+      1000,
+      4000
+    ],
+    "window_seconds_of_clip": [
+      40.0,
+      160.0
+    ],
+    "tracked_frames": [
+      950,
+      4000
+    ],
+    "fps": 25,
+    "tracking": "skip=1, imgsz 960, conf 0.15, yolo11n + pinned configs/tracker.yaml (L-015)",
+    "owner_has_seen_this_window": false
+  },
+  "definition": {
+    "what_is_counted": "A vehicle crossing the vertical line x=400 within y=[130,480], moving WESTBOUND - local motion at the crossing within 30 deg of [-1.0,-0.014]. Left + through both count, since they have merged into one roadway west of the intersection box.",
+    "config": "configs/brea-mon-wb.json"
+  },
+  "window_selection": {
+    "rule": "PRE-STATED before any crossing count existed: the window with the most vehicle DETECTIONS inside the band x300-500 / y130-480, from a detection pass sampled every 25 frames. Never from crossing output.",
+    "length_justification": "120 s, not 60 s: a rate probe at clip t 600-630s - a stretch that will never be used as a benchmark - measured 13 crossings / 30 s = ~26/min, so 60 s would yield ~26 subjects, below the N>=50 needed to separate 92.75% from 98%.",
+    "selected": "frames 1000-4000, 98 band detections in the sample (next best 97, 95)"
+  },
+  "sealed_prediction": {
+    "value": 83,
+    "sweep_range": [
+      75,
+      86
+    ],
+    "sweep_knobs": "heading tolerance 20-35 deg x band shift +-40 px",
+    "rejected": {
+      "band": 3,
+      "angle": 9
+    },
+    "detail": "benchmarks/brea-mon-wb-2min/sealed_prediction.json (disk only)",
+    "sealed_at": "2026-10-05, BEFORE any human count and before the review video was rendered"
+  },
+  "maturity": {
+    "verdict": "all populated segments MATURE - the best placement so far",
+    "by_segment": [
+      {
+        "seg": "y130-217",
+        "n": 49,
+        "born_past": 2,
+        "med_travel_widths": 6.23,
+        "immature": 0.041,
+        "verdict": "mature"
+      },
+      {
+        "seg": "y217-305",
+        "n": 27,
+        "born_past": 2,
+        "med_travel_widths": 5.4,
+        "immature": 0.0,
+        "verdict": "mature"
+      },
+      {
+        "seg": "y305-392",
+        "n": 7,
+        "born_past": 0,
+        "med_travel_widths": 3.78,
+        "immature": 0.0,
+        "verdict": "mature"
+      },
+      {
+        "seg": "y392-480",
+        "n": 0,
+        "verdict": "no_data"
+      }
+    ],
+    "comparison": "Sunday line was 1.1-1.5 widths travelled and 20-33% immature; this is 3.8-6.2 widths and 0-4%."
+  },
+  "known_unreliable": {
+    "near_duplicate_flags": "36 pairs flagged - IGNORE THEM. The L-014 defect is still unfixed in tools/crossings.py: mark_near_duplicates compares boxes at each track's own crossing time, so platooned vehicles in adjacent lanes trip it. Verified unfixed 2026-10-05."
+  },
+  "counts": {
+    "user": null,
+    "count_type": "reviewed (numbered video, per delivery protocol)"
+  },
+  "caveats": [
+    "Weekday mid-morning, not peak; no congestion or queuing stress.",
+    "Segment y392-480 saw no crossings in this window. It is NOT dead - across the full 15 min, y340-460 carries 40 of 136 on-line detections - so the line was deliberately NOT trimmed there.",
+    "Single camera, single day. Generalisation untested."
+  ]
+}

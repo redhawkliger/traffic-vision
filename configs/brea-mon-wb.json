@@ -1,0 +1,20 @@
+{
+  "site": "SR-90 at Brea Blvd, CCTV 510 - WESTBOUND (left + through merged, west of the intersection box). Monday 2026-10-05 framing.",
+  "line": [
+    [
+      400,
+      130
+    ],
+    [
+      400,
+      480
+    ]
+  ],
+  "direction": [
+    -1.0,
+    -0.014
+  ],
+  "heading_tol_deg": 30,
+  "note": "Framing CHANGED from the Sunday clips (+290 px horizontal); configs/brea-wb-leg.json does NOT apply. Endpoints set from measured optical flow: rows y130-330 are COHERENT westbound (coherence s=0.32-0.77, 0.1-18 deg off). Below y~450 the flow field is INCOHERENT (s=0.04-0.12): motion is large but cancels, so no direction can be read there. Earlier reading of 'opposing lanes' at y510-610 was an averaging artifact of near-zero mean flow, NOT measured eastbound traffic - that claim was withdrawn. Whether y450-480 carries mixed movements is UNVERIFIED by this instrument; optical flow is unreliable on large fast near-field vehicles. Resolve it with real tracks after the tracking pass and trim then if needed.",
+  "open_question": "Is y450-480 clean westbound or mixed? Flow cannot say. Report rejected crossings per y-segment after tracking and trim the bottom endpoint on that evidence."
+}

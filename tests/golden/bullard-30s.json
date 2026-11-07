@@ -1,0 +1,70 @@
+{
+  "benchmark_id": "bullard-30s",
+  "status": "RECONCILED - owner confirmed the count on 2026-10-05",
+  "created": "2026-10-05",
+  "source": {
+    "camera": "SR-41 at Bullard Ave, D6 CCTV 41_Bullard",
+    "clip": "data/clips/sr41_bullard_mon_20261005.ts",
+    "window_frames": [
+      300,
+      1200
+    ],
+    "window_seconds_of_clip": [
+      10.0,
+      40.0
+    ],
+    "tracked_frames": [
+      250,
+      1200
+    ],
+    "fps": 30,
+    "resolution": "1920x1080",
+    "tracking": "skip=1 imgsz1920 conf0.15 yolo11n + pinned tracker"
+  },
+  "definition": {
+    "what_is_counted": "vehicle crossing the stream-1 line, local motion within 40 deg of +157 deg (SB 41 mainline)",
+    "config": "configs/bullard-s1-full.json",
+    "line": [
+      [
+        848,
+        1073
+      ],
+      [
+        696,
+        718
+      ]
+    ],
+    "line_provenance": "the exact green line shown to and approved by the owner (full segmented carriageway, untrimmed)"
+  },
+  "sealed_prediction": {
+    "value": 15,
+    "sweep_range": [
+      12,
+      15
+    ],
+    "note": "tolerance-insensitive: 15 at 20/25/30/35 deg. The 12-15 range comes only from shrinking BOTH ends by 40px, which cuts real vehicles. With the approved untrimmed line, shifting the start alone no longer changes the count at all - the bottom of the line is shoulder, so it is inert.",
+    "sealed_at": "2026-10-05 BEFORE any human count and before the review video existed"
+  },
+  "maturity": {
+    "verdict": "all populated segments mature; the bottom two segments are shoulder (no traffic)"
+  },
+  "counts": {
+    "user": 15,
+    "count_type": "reviewed (numbered video, per delivery protocol)",
+    "provenance": "owner watched the numbered review video and confirmed the count with no misses and no false counts named",
+    "agreement": "15 predicted / 15 confirmed"
+  },
+  "result": {
+    "predicted": 15,
+    "reference": 15,
+    "signed_error": 0,
+    "abs_pct_error": 0.0,
+    "ladder": "clears stage 1 (85%). CANNOT resolve stage 2 (92.75%) vs stage 3 (98%) - with N=15 one error is 6.7% (L-008 wants N>=50)."
+  },
+  "honest_scope": [
+    "N=15. A perfect score here is consistent with anything from ~90% upward; it does not demonstrate 98%.",
+    "REVIEWED, not blind - the numbers were visible while the owner watched (owner delivery protocol).",
+    "Free-flow freeway, one direction, near lanes. No queues, no turns, no congestion - the easy case, chosen deliberately.",
+    "The line extent was set from detection density over the FULL clip, which includes these frames. The config was otherwise derived on the separate verification segment, but this is a weak in-sample dependency and is recorded as such."
+  ]
+}
